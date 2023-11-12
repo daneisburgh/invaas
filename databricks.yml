@@ -1,0 +1,42 @@
+# This is a Databricks asset bundle definition for invaas.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: invaas
+resources:
+  jobs:
+    invaas_job:
+      name: invaas_job
+      schedule:
+        quartz_cron_expression: "44 37 8 * * ?"
+        timezone_id: Europe/Amsterdam
+      job_clusters:
+        - job_cluster_key: job_cluster
+          new_cluster:
+            spark_version: 13.3.x-scala2.12
+            node_type_id: Standard_F4s_v2
+            data_security_mode: LEGACY_SINGLE_USER_STANDARD
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+              spark.master: "local[*,4]"
+            custom_tags:
+              ResourceClass: SingleNode
+            azure_attributes:
+              availability: ON_DEMAND_AZURE
+              first_on_demand: 1
+              spot_bid_max_price: -1
+      email_notifications:
+        on_failure:
+          - daneisburgh@gmail.com
+      tasks:
+        - task_key: notebook_task
+          job_cluster_key: job_cluster
+          notebook_task:
+            notebook_path: ../src/notebook.ipynb
+targets:
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-3402802924136763.3.azuredatabricks.net
+      root_path: /Shared/.bundle/prod/${bundle.name}
+    run_as:
+      user_name: daneisburgh@gmail.com

@@ -1,0 +1,11 @@
+.databricks/
+.env
+.ipynb_checkpoints/
+*.egg-info
+.venv/
+.Trash-1000
+__pycache__/
+build/
+dist/
+scratch/**
+!scratch/README.md
