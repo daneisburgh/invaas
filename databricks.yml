@@ -4,11 +4,11 @@ bundle:
   name: invaas
 resources:
   jobs:
-    invaas_job:
-      name: invaas_job
+    invaas:
+      name: invaas
       schedule:
-        quartz_cron_expression: "44 37 8 * * ?"
-        timezone_id: Europe/Amsterdam
+        quartz_cron_expression: "44 55 * * * ?"
+        timezone_id: UTC
       job_clusters:
         - job_cluster_key: job_cluster
           new_cluster:
@@ -31,12 +31,12 @@ resources:
         - task_key: notebook_task
           job_cluster_key: job_cluster
           notebook_task:
-            notebook_path: ../src/notebook.ipynb
+            notebook_path: ./notebooks/invaas-notebook.ipynb
 targets:
   prod:
     mode: production
     workspace:
-      host: https://adb-3402802924136763.3.azuredatabricks.net
-      root_path: /Shared/.bundle/prod/${bundle.name}
+      host: https://adb-6718246255739942.2.azuredatabricks.net
+      root_path: /Shared/.bundle/prod/invaas
     run_as:
       user_name: daneisburgh@gmail.com
