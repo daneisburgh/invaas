@@ -1,4 +1,5 @@
 .databricks/
+.eggs
 .env
 .ipynb_checkpoints/
 *.egg-info
