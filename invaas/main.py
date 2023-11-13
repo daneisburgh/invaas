@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv, find_dotenv
 from pyspark.sql import SparkSession
 from sklearn.linear_model import BayesianRidge
+from typing import Union
 
 from invaas.coinbase_client import CoinbaseClient
 
@@ -38,7 +39,7 @@ class Task:
         # self.product_ids = ["ATOM-USD", "BTC-USD", "DOT-USD", "ETH-USD", "SOL-USD"]
         self.logger.info(f"Products to trade: {str(self.product_ids)}")
 
-    def __get_dbutils(self, spark: SparkSession):
+    def __get_dbutils(self, spark: Union[SparkSession, None]):
         try:
             from pyspark.dbutils import DBUtils
 
@@ -65,9 +66,11 @@ class Task:
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         logging.getLogger("asyncio.events").setLevel(logging.CRITICAL)
-        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.WARNING)
-        logging.getLogger("mlflow.tracking.fluent").setLevel(logging.WARNING)
-        logging.getLogger("py4j.java_gateway").setLevel(logging.WARNING)
+        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.ERROR)
+        logging.getLogger("mlflow.tracking.fluent").setLevel(logging.ERROR)
+        logging.getLogger("py4j").setLevel(logging.ERROR)
+        logging.getLogger("py4j.java_gateway").setLevel(logging.ERROR)
+        logging.getLogger("pyspark").setLevel(logging.ERROR)
         return logging.getLogger(self.__class__.__name__)
 
     def __get_secret(self, key: str):

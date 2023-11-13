@@ -2,11 +2,10 @@ import http.client
 import hmac
 import hashlib
 import json
-import os
 import time
 
-from urllib.parse import urlencode
 from typing import Union, Dict
+from urllib.parse import urlencode
 
 
 class CoinbaseAuth:
@@ -29,7 +28,7 @@ class CoinbaseAuth:
         method: str,
         path: str,
         body: Union[Dict, str] = "",
-        params: Dict[str, str] = None,
+        params: Union[Dict[str, str], None] = None,
     ) -> Dict:
         """
         Prepare and send an authenticated request to the Coinbase API.
@@ -80,4 +79,5 @@ class CoinbaseAuth:
         if res.status != 200:
             raise Exception(response_data)
 
+        conn.close()
         return response_data
