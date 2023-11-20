@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv, find_dotenv
 from pyspark.sql import SparkSession
 from sklearn.linear_model import BayesianRidge
+from sklearn.preprocessing import MinMaxScaler
 from typing import Union
 
 from invaas.coinbase_client import CoinbaseClient
@@ -159,10 +160,14 @@ class Task:
         df_history.ta.strategy(CustomStrategy)
         return df_history
 
-    def get_product_next_open_pct_change(self, df_history: pd.DataFrame, predict_time: pd.Timestamp = None):
+    def get_product_next_open_pct_change(
+        self,
+        df_history: pd.DataFrame,
+        predict_time: pd.Timestamp = None,
+        train_hours: int = (24 * 30),
+        prediction_hours: int = 24,
+    ):
         prediction_label = "period_max_open_pct_change"
-        prediction_hours = 4
-        train_days = 60
         df_history[prediction_label] = (
             (
                 df_history[::-1]
@@ -180,16 +185,20 @@ class Task:
 
         current_time = predict_time if predict_time else datetime.utcnow().replace(minute=0, second=0, microsecond=0)
         period_end = pd.to_datetime(current_time, utc=True)
-        period_start = pd.to_datetime(current_time - timedelta(days=train_days), utc=True)
+        period_start = pd.to_datetime(current_time - timedelta(hours=train_hours), utc=True)
 
+        scaler = MinMaxScaler(feature_range=(0, 1))
         df_period = df_history.loc[df_history.index >= period_start]
+        df_period = pd.DataFrame(
+            scaler.fit_transform(df_period.values), index=df_period.index, columns=df_period.columns
+        )
         df_train = df_period.loc[df_period.index < period_end].dropna()
         df_test = df_period.loc[df_period.index >= period_end]
 
         if not predict_time:
             self.logger.info(f"Predict time: {pd.to_datetime(df_test.index.values[-1]).isoformat()}")
 
-        if len(df_train) < train_days:
+        if len(df_train) < train_hours:
             return None
 
         feature_columns = [x for x in df_history.columns if x != prediction_label]
@@ -213,7 +222,9 @@ class Task:
         )
 
         model.fit(x_train, y_train.ravel())
-        return model.predict(x_test)[0]
+        x_y_test = x_test.copy()
+        x_y_test = np.append(x_y_test, [model.predict(x_test)[0]])
+        return scaler.inverse_transform(x_y_test.reshape(1, -1))[0][-1]
 
     def buy_product(self, product_id: str):
         available_cash = self.__get_available_balance("Cash (USD)")
