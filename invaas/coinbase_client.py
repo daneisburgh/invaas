@@ -4,12 +4,12 @@ from enum import Enum
 from invaas.coinbase_auth import CoinbaseAuth
 
 
-class Side(Enum):
-    BUY = 1
-    SELL = 0
+class OrderSide(Enum):
+    BUY = "BUY"
+    SELL = "SELL"
 
 
-class Method(Enum):
+class RequestMethod(Enum):
     POST = "POST"
     GET = "GET"
 
@@ -28,7 +28,7 @@ class CoinbaseClient:
         :param cursor: Cursor used for pagination. When provided, the response returns responses after this cursor.
         :return: A dictionary containing the response from the server. A successful response will return a 200 status code. An unexpected error will return a default error response.
         """
-        return self.cb_auth(method=Method.GET.value, path="/api/v3/brokerage/accounts")
+        return self.cb_auth(method=RequestMethod.GET.value, path="/api/v3/brokerage/accounts")
 
     def get_account(self, account_uuid):
         """
@@ -39,7 +39,7 @@ class CoinbaseClient:
         :param account_uuid: The account's UUID. Use list_accounts() to find account UUIDs.
         :return: A dictionary containing the response from the server. A successful response will return a 200 status code. An unexpected error will return a default error response.
         """
-        return self.cb_auth(method=Method.GET.value, path=f"/api/v3/brokerage/accounts/{account_uuid}")
+        return self.cb_auth(method=RequestMethod.GET.value, path=f"/api/v3/brokerage/accounts/{account_uuid}")
 
     def create_order(self, order_id, product_id, side, order_configuration):
         """
@@ -58,7 +58,7 @@ class CoinbaseClient:
             "side": side,
             "order_configuration": {"market_market_ioc": order_configuration},
         }
-        response_data = self.cb_auth(method=Method.POST.value, path="/api/v3/brokerage/orders", body=body)
+        response_data = self.cb_auth(method=RequestMethod.POST.value, path="/api/v3/brokerage/orders", body=body)
 
         if not response_data["success"]:
             raise Exception(response_data)
@@ -76,7 +76,7 @@ class CoinbaseClient:
         """
         body = json.dumps({"order_ids": order_ids})
         return self.cb_auth(
-            method=Method.POST.value,
+            method=RequestMethod.POST.value,
             path="/api/v3/brokerage/orders/batch_cancel",
             body=body,
         )
@@ -104,7 +104,7 @@ class CoinbaseClient:
         :return: A dictionary containing the response from the server. This will include details about each order, such as the order ID, product ID, side, type, and status.
         """
         return self.cb_auth(
-            method=Method.GET.value,
+            method=RequestMethod.GET.value,
             path="/api/v3/brokerage/orders/historical/batch",
             params=kwargs,
         )
@@ -126,7 +126,7 @@ class CoinbaseClient:
         :return: A dictionary containing the response from the server. This will include details about each fill, such as the fill ID, product ID, side, type, and status.
         """
         return self.cb_auth(
-            method=Method.GET.value,
+            method=RequestMethod.GET.value,
             path="/api/v3/brokerage/orders/historical/fills",
             params=kwargs,
         )
@@ -140,7 +140,7 @@ class CoinbaseClient:
         :param order_id: The ID of the order to retrieve.
         :return: A dictionary containing the response from the server. This will include details about the order, such as the order ID, product ID, side, type, and status.
         """
-        return self.cb_auth(method=Method.GET.value, path=f"/api/v3/brokerage/orders/historical/{order_id}")
+        return self.cb_auth(method=RequestMethod.GET.value, path=f"/api/v3/brokerage/orders/historical/{order_id}")
 
     def list_products(self, **kwargs):
         """
@@ -155,7 +155,7 @@ class CoinbaseClient:
         :param contract_expiry_type: An optional string describing the contract expiry type. Default is 'UNKNOWN_CONTRACT_EXPIRY_TYPE'.
         :return: A dictionary containing the response from the server. This will include details about each product, such as the product ID, product type, and contract expiry type.
         """
-        return self.cb_auth(method=Method.GET.value, path="/api/v3/brokerage/products", params=kwargs)
+        return self.cb_auth(method=RequestMethod.GET.value, path="/api/v3/brokerage/products", params=kwargs)
 
     def get_product(self, product_id):
         """
@@ -166,7 +166,7 @@ class CoinbaseClient:
         :param product_id: The ID of the product to retrieve information for.
         :return: A dictionary containing the response from the server. This will include details about the product, such as the product ID, product type, and contract expiry type.
         """
-        return self.cb_auth(method=Method.GET.value, path=f"/api/v3/brokerage/products/{product_id}")
+        return self.cb_auth(method=RequestMethod.GET.value, path=f"/api/v3/brokerage/products/{product_id}")
 
     def get_product_candles(self, product_id, start, end, granularity):
         """
@@ -182,7 +182,7 @@ class CoinbaseClient:
         """
         params = {"start": start, "end": end, "granularity": granularity}
         return self.cb_auth(
-            method=Method.GET.value,
+            method=RequestMethod.GET.value,
             path=f"/api/v3/brokerage/products/{product_id}/candles",
             params=params,
         )
@@ -198,7 +198,7 @@ class CoinbaseClient:
         :return: A dictionary containing the response from the server. This will include details about the last trades, such as the best bid/ask, and 24h volume.
         """
         return self.cb_auth(
-            method=Method.GET.value,
+            method=RequestMethod.GET.value,
             path=f"/api/v3/brokerage/products/{product_id}/ticker",
             params={"limit": limit},
         )
@@ -231,7 +231,7 @@ class CoinbaseClient:
             "contract_expiry_type": contract_expiry_type,
         }
         return self.cb_auth(
-            method=Method.GET.value,
+            method=RequestMethod.GET.value,
             path="/api/v3/brokerage/transaction_summary",
             params=params,
         )
