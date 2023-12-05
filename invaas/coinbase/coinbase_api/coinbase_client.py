@@ -1,7 +1,8 @@
 import json
 
 from enum import Enum
-from invaas.coinbase_auth import CoinbaseAuth
+
+from invaas.coinbase_api.coinbase_auth import CoinbaseAuth
 
 
 class OrderSide(Enum):

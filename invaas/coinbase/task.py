@@ -13,7 +13,7 @@ import pandas as pd
 from pyspark.sql import SparkSession
 from typing import Union
 
-from invaas.coinbase_client import CoinbaseClient, OrderSide
+from invaas.coinbase.coinbase_api.coinbase_client import CoinbaseClient, OrderSide
 
 warnings.filterwarnings("ignore")
 
