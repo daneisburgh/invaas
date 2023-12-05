@@ -12,7 +12,6 @@ PACKAGE_REQUIREMENTS = [
     "pandas==2.1.3",
     "pandas-ta==0.3.14b",
     "python-dotenv==1.0.0",
-    "scikit-learn==1.3.2",
     "yfinance==0.2.31",
 ]
 
@@ -28,6 +27,7 @@ DEV_REQUIREMENTS = [
     "pyspark",
     "pytest",
     "pytest-cov",
+    "scikit-learn",
     "setuptools",
     "wheel",
 ]
