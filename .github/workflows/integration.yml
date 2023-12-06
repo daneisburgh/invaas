@@ -1,13 +1,13 @@
 name: Integration
-on:
-  push:
-    branches-ignore:
-      - main
+on: [push]
 jobs:
-  integration-pipeline:
+  integration:
+    name: Integration
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -22,3 +22,8 @@ jobs:
         run: black --diff --color --check .
       - name: Run type check
         run: mypy --install-types --non-interactive .
+      - name: Create release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: semantic-release version --changelog --commit --push --vcs-release --skip-build
