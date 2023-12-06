@@ -22,4 +22,6 @@ jobs:
         run: mypy --install-types --non-interactive .
       - name: Create release
         if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: semantic-release version --changelog --commit --push --vcs-release --skip-build
