@@ -28,6 +28,7 @@ DEV_REQUIREMENTS = [
     "pyspark",
     "pytest",
     "pytest-cov",
+    "python-semantic-release",
     "setuptools",
     "wheel",
 ]
