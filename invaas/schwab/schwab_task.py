@@ -35,5 +35,8 @@ class SchwabTask(Task):
         pass
 
     def create_orders(self):
-        for product_id in random.shuffle(self.product_ids):
+        shuffled_product_ids = self.product_ids
+        random.shuffle(shuffled_product_ids)
+
+        for product_id in shuffled_product_ids:
             pass

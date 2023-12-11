@@ -84,7 +84,10 @@ class CoinbaseTask(Task):
             )
 
     def create_orders(self):
-        for product_id in random.shuffle(self.product_ids):
+        shuffled_product_ids = self.product_ids
+        random.shuffle(shuffled_product_ids)
+
+        for product_id in shuffled_product_ids:
             self.logger.info(f"Running process for {product_id}")
 
             crypto_id = self.__get_crypto_id(product_id)
