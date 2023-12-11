@@ -7,8 +7,8 @@ resources:
     invaas:
       name: invaas
       schedule:
-        quartz_cron_expression: "0 30 09 * * ?"
-        timezone_id: EST
+        quartz_cron_expression: "0 0 0 * * ?"
+        timezone_id: UTC
       job_clusters:
         - job_cluster_key: job_cluster
           new_cluster:
