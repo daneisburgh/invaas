@@ -2,9 +2,60 @@
 
 
 
+## v1.1.0 (2023-12-11)
+
+### Build
+
+* build: update databricks config
+
+- change workflow schedule
+- add environment variables
+- update notebook tasks ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
+
+### Chore
+
+* chore: update pyproject config ([`2e3abdb`](https://github.com/daneisburgh/invaas/commit/2e3abdbb4863133f544ee021cd4626ebf64271a8))
+
+* chore: add semantic release and configuration ([`171e14f`](https://github.com/daneisburgh/invaas/commit/171e14f130579609cc98b7826bd47ba0a124ddf3))
+
+### Ci
+
+* ci: add checkout fetch depth ([`4e07a46`](https://github.com/daneisburgh/invaas/commit/4e07a46bd719f746d8be916d67cfeed595865525))
+
+* ci: add token for release ([`c3bea0e`](https://github.com/daneisburgh/invaas/commit/c3bea0e3b1a5dec79fb49ea31b634e59e1bdfb50))
+
+* ci: update integration and deployment workflows ([`8182951`](https://github.com/daneisburgh/invaas/commit/81829511b23bc3f65b2969abd5c12b6b069632a9))
+
+### Documentation
+
+* docs: update README ([`d572906`](https://github.com/daneisburgh/invaas/commit/d5729069a6fa2f4dde1026d9fbec03ad5e2ab7c5))
+
+### Feature
+
+* feat: add initial schwab task and notebook ([`65178bc`](https://github.com/daneisburgh/invaas/commit/65178bcde2c7ce3fd27493d741c8bb3e3cc93d3e))
+
+### Fix
+
+* fix: shuffle product ids ([`bb667d8`](https://github.com/daneisburgh/invaas/commit/bb667d88771db4f3bc57813681e61581d9cbd275))
+
+* fix: shuffle product ids ([`ba3588e`](https://github.com/daneisburgh/invaas/commit/ba3588e2aea2c0bfdc8faece34bd425dc17b7e54))
+
+### Refactor
+
+* refactor: setup find packages ([`469772e`](https://github.com/daneisburgh/invaas/commit/469772ea4b8b55b57414480b8c0484c148763f04))
+
+* refactor: coinbase task and notebook ([`2639dfc`](https://github.com/daneisburgh/invaas/commit/2639dfca9f56e840c88cfbfb9690dd51df533c79))
+
+### Unknown
+
+* Merge branch &#39;develop&#39; into feature/schwab ([`dc50fd7`](https://github.com/daneisburgh/invaas/commit/dc50fd75c2265d35baa10776bba888a131182ea6))
+
+
 ## v1.0.0 (2023-12-06)
 
 ### Chore
+
+* chore: update requirements ([`a67c794`](https://github.com/daneisburgh/invaas/commit/a67c79492b9feb6f3006f1e634787d2bd4c93768))
 
 * chore: format files ([`e4dba11`](https://github.com/daneisburgh/invaas/commit/e4dba11d55251bbd4671349ea9cd411751a226da))
 
@@ -32,6 +83,8 @@
 
 ### Feature
 
+* feat: add cnn fear and greed index retrieval ([`0928ab8`](https://github.com/daneisburgh/invaas/commit/0928ab847fd2e5989710a014ec71f6ad663d966c))
+
 * feat: update job schedule and node type ([`0c01c94`](https://github.com/daneisburgh/invaas/commit/0c01c947acb3a37a66e21eea3ed8b458538f913f))
 
 * feat: use only fear greed index in main task class ([`067935c`](https://github.com/daneisburgh/invaas/commit/067935ca8147f0e1cc64f0aaf26f27ac2bd6f6a2))
@@ -47,6 +100,8 @@
 * fix: typing errors ([`9e15b86`](https://github.com/daneisburgh/invaas/commit/9e15b861e757e9163cc2872714d031ac4d1c564a))
 
 ### Refactor
+
+* refactor: package structure ([`5c5bfce`](https://github.com/daneisburgh/invaas/commit/5c5bfce9772a71283f88d166ef6890a5144355e9))
 
 * refactor: invaas notebook init and main task usage ([`c85172e`](https://github.com/daneisburgh/invaas/commit/c85172e98e8574ef70992293b95e1dc92deae55d))
 
