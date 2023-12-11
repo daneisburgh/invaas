@@ -19,8 +19,8 @@ resources:
               spark.databricks.cluster.profile: singleNode
               spark.master: "local[*,4]"
             spark_env_vars:
-              APP-ENV: prod
-              APP-SOURCE: "/Workspace/Shared/.bundle/prod/invaas/files"
+              APP_ENV: prod
+              APP_SOURCE: "/Workspace/Shared/.bundle/prod/invaas/files"
             custom_tags:
               ResourceClass: SingleNode
             azure_attributes:
