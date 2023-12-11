@@ -1,6 +1,6 @@
 # Task class for Schwab trading
 
-import requests
+import random
 
 from invaas.task import Task
 from invaas.schwab.cnn_fear_greed_index import get_current_cnn_fear_greed_index
@@ -35,4 +35,5 @@ class SchwabTask(Task):
         pass
 
     def create_orders(self):
-        pass
+        for product_id in random.shuffle(self.product_ids):
+            pass
