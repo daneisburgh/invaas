@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import datetime
 import requests
 import typing
@@ -41,12 +39,10 @@ class Fetcher:
         return r.json()
 
 
-def get_current_cnn_fear_greed_index(fetcher: Fetcher = None):
+def get_current_cnn_fear_greed_index():
     """Returns CNN's Fear & Greed Index."""
 
-    if fetcher is None:
-        fetcher = Fetcher()
-
+    fetcher = Fetcher()
     response = fetcher()["fear_and_greed"]
     return FearGreedIndex(
         value=response["score"],
@@ -55,10 +51,8 @@ def get_current_cnn_fear_greed_index(fetcher: Fetcher = None):
     )
 
 
-def get_historical_cnn_fear_greed_index(fetcher: Fetcher = None):
+def get_historical_cnn_fear_greed_index():
     """Returns CNN's Fear & Greed Index."""
 
-    if fetcher is None:
-        fetcher = Fetcher()
-
+    fetcher = Fetcher()
     return fetcher()["fear_and_greed_historical"]
