@@ -7,8 +7,8 @@ resources:
     invaas:
       name: invaas
       schedule:
-        quartz_cron_expression: "0 0 17 * * ?"
-        timezone_id: UTC
+        quartz_cron_expression: "0 30 09 * * ?"
+        timezone_id: EST
       job_clusters:
         - job_cluster_key: job_cluster
           new_cluster:
@@ -18,6 +18,9 @@ resources:
             spark_conf:
               spark.databricks.cluster.profile: singleNode
               spark.master: "local[*,4]"
+            spark_env_vars:
+              APP-ENV: prod
+              APP-SOURCE: "/Workspace/Shared/.bundle/prod/invaas/files"
             custom_tags:
               ResourceClass: SingleNode
             azure_attributes:
@@ -28,10 +31,14 @@ resources:
         on_failure:
           - daneisburgh@gmail.com
       tasks:
-        - task_key: notebook_task
+        - task_key: coinbase_notebook
           job_cluster_key: job_cluster
           notebook_task:
-            notebook_path: ./notebooks/invaas-notebook.ipynb
+            notebook_path: ./invaas/coinbase_notebook.ipynb
+        - task_key: schwab_notebook
+          job_cluster_key: job_cluster
+          notebook_task:
+            notebook_path: ./invaas/schwab_notebook.ipynb
 targets:
   prod:
     mode: production
