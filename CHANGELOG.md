@@ -6,7 +6,7 @@
 
 ### Build
 
-* build: update databricks config
+* build: update databricks config ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
 
 ### Chore
 
