@@ -2,6 +2,13 @@
 
 
 
+## v1.1.2 (2023-12-11)
+
+### Fix
+
+* fix: update app environment variables name format ([`33e4a2b`](https://github.com/daneisburgh/invaas/commit/33e4a2bef51c4fc02a52ae1570b47534eca76834))
+
+
 ## v1.1.1 (2023-12-11)
 
 ### Documentation
