@@ -8,10 +8,6 @@
 
 * build: update databricks config
 
-- change workflow schedule
-- add environment variables
-- update notebook tasks ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
-
 ### Chore
 
 * chore: update pyproject config ([`2e3abdb`](https://github.com/daneisburgh/invaas/commit/2e3abdbb4863133f544ee021cd4626ebf64271a8))
