@@ -2,11 +2,28 @@
 
 
 
+## v1.1.1 (2023-12-11)
+
+### Documentation
+
+* docs: update CHANGELOG ([`1598b5c`](https://github.com/daneisburgh/invaas/commit/1598b5c38224e5ef9c0b0038ac973363d921e9db))
+
+* docs: update CHANGELOG ([`be0a526`](https://github.com/daneisburgh/invaas/commit/be0a526d9fb65728a8f62af2dc3fa1b238e3ab60))
+
+### Fix
+
+* fix: update workflow schedule ([`fe1f90e`](https://github.com/daneisburgh/invaas/commit/fe1f90ec7eaec962dd7762dc57a0402ecac4aec0))
+
+
 ## v1.1.0 (2023-12-11)
 
 ### Build
 
-* build: update databricks config ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
+* build: update databricks config
+
+- change workflow schedule
+- add environment variables
+- update notebook tasks ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
 
 ### Chore
 
