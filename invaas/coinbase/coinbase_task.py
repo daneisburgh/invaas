@@ -1,36 +1,26 @@
-# Main task class
+# Task class for Coinbase trading
 
-import logging
-import os
 import requests
-import sys
 import uuid
 import warnings
 
-import numpy as np
 import pandas as pd
 
-from pyspark.sql import SparkSession
-from typing import Union
-
-from invaas.coinbase.coinbase_api.coinbase_client import CoinbaseClient, OrderSide
+from invaas.task import Task
+from invaas.coinbase.coinbase_client import CoinbaseClient, OrderSide
 
 warnings.filterwarnings("ignore")
 
 
-class Task:
+class CoinbaseTask(Task):
     """
     Task class to execute ETL processes for loading and preparing data.
     """
 
-    def __init__(self, env: str = "prod"):
-        self.env = env
-        self.spark = None if self.env == "local" else SparkSession.builder.getOrCreate()
-        self.logger = self.__get_logger()
-        self.dbutils = self.__get_dbutils(self.spark)
+    def __init__(self, env: str = "local"):
+        super().__init__(env=env)
 
-        self.logger.info(f"Initializing task for {self.env} environment")
-        self.cb_client = CoinbaseClient(self.__get_secret("COINBASE-API-KEY"), self.__get_secret("COINBASE-API-SECRET"))
+        self.cb_client = CoinbaseClient(self.get_secret("COINBASE-API-KEY"), self.get_secret("COINBASE-API-SECRET"))
 
         self.product_ids = ["ATOM-USD", "BTC-USD", "DOT-USD", "ETH-USD", "SOL-USD"]
         self.logger.info(f"Products to trade: {str(self.product_ids)}")
@@ -47,46 +37,6 @@ class Task:
         self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
         self.logger.info(f"Max owned amount: ${self.max_owned_amount}")
 
-    def __get_dbutils(self, spark: Union[SparkSession, None]):
-        try:
-            from pyspark.dbutils import DBUtils
-
-            if "dbutils" not in locals():
-                utils = DBUtils(spark)
-            else:
-                utils = locals().get("dbutils")
-        except ImportError:
-            utils = None
-
-        if not utils:
-            self.logger.warning("No DBUtils defined in the runtime")
-        else:
-            self.logger.info("DBUtils class initialized")
-
-        return utils
-
-    def __get_logger(self):
-        logging.basicConfig(
-            force=True,
-            level=logging.INFO,
-            stream=sys.stdout,
-            format="%(asctime)s %(levelname)s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        logging.getLogger("asyncio.events").setLevel(logging.CRITICAL)
-        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.ERROR)
-        logging.getLogger("mlflow.tracking.fluent").setLevel(logging.ERROR)
-        logging.getLogger("py4j").setLevel(logging.ERROR)
-        logging.getLogger("py4j.java_gateway").setLevel(logging.ERROR)
-        logging.getLogger("pyspark").setLevel(logging.ERROR)
-        return logging.getLogger(self.__class__.__name__)
-
-    def __get_secret(self, key: str):
-        if self.env == "local":
-            return os.environ[key]
-        else:
-            return self.dbutils.secrets.get(scope="kv-invaas", key=key)
-
     def __get_available_balance(self, account_name: str):
         df_accounts = pd.DataFrame(self.cb_client.list_accounts()["accounts"])
         cash_account = df_accounts.loc[df_accounts.name == account_name].to_dict(orient="records")[0]
@@ -95,11 +45,8 @@ class Task:
     def __get_crypto_id(self, product_id: str):
         return product_id.split("-")[0]
 
-    def __floor_value(self, value: float, precision: int):
-        return np.true_divide(np.floor(value * 10**precision), 10**precision)
-
     def __buy_product(self, product_id: str, available_cash: float):
-        buy_amount = self.__floor_value(value=(available_cash / len(self.product_ids) / 10), precision=2)
+        buy_amount = self.floor_value(value=(available_cash / len(self.product_ids) / 10), precision=2)
         buy_amount = buy_amount if buy_amount >= self.min_buy_amount else self.min_buy_amount
         buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
         self.logger.info(f"Buy amount: ${buy_amount:.2f}")
@@ -119,7 +66,7 @@ class Task:
 
     def __sell_product(self, product_id: str, owned_crypto: float):
         crypto_id = self.__get_crypto_id(product_id)
-        sell_amount = self.__floor_value(value=owned_crypto, precision=8)
+        sell_amount = self.floor_value(value=owned_crypto, precision=8)
         self.logger.info(f"Sell amount: {sell_amount}")
 
         if sell_amount == 0:
