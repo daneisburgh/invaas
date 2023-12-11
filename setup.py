@@ -35,11 +35,11 @@ DEV_REQUIREMENTS = [
 
 setup(
     name="invaas",
-    packages=find_packages("./invaas"),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     setup_requires=["wheel"],
     install_requires=PACKAGE_REQUIREMENTS,
     extras_require={"dev": DEV_REQUIREMENTS},
     version=__version__,
-    description="Investment as a service",
+    description="Investment as a Service",
     author="daneisburgh@gmail.com",
 )
