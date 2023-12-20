@@ -8,11 +8,12 @@ import warnings
 import numpy as np
 
 from abc import ABC
+from dotenv import load_dotenv, find_dotenv
 from pyspark.sql import SparkSession
 from typing import Union
 
-
 warnings.filterwarnings("ignore")
+load_dotenv(find_dotenv())
 
 
 class Task(ABC):
@@ -22,7 +23,7 @@ class Task(ABC):
     """
 
     def __init__(self, env: str = "local"):
-        self.env = env
+        self.env = env if env else os.getenv("APP_ENV")
         self.spark = None if self.env == "local" else SparkSession.builder.getOrCreate()
         self.logger = self.__get_logger()
         self.dbutils = self.__get_dbutils(self.spark)
