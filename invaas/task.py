@@ -43,8 +43,6 @@ class Task(ABC):
 
         if not utils:
             self.logger.warning("No DBUtils defined in the runtime")
-        else:
-            self.logger.info("DBUtils class initialized")
 
         return utils
 
