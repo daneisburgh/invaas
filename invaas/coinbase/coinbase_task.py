@@ -8,7 +8,6 @@ from invaas.task import Task
 from invaas.coinbase.coinbase_client import CoinbaseClient, OrderSide
 
 
-
 class CoinbaseTask(Task):
     """
     Task class to execute ETL processes for loading and preparing data.
