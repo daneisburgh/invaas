@@ -60,8 +60,8 @@ targets:
     run_as:
       user_name: ${var.email}
     variables:
-      root_path: "/Workspace/Shared/.bundle/dev/${var.email}/invaas/files"
       schedule_pause_status: "PAUSED"
+      root_path: "/Workspace/Shared/.bundle/dev/${var.email}/invaas/files"
     workspace:
       host: https://adb-6718246255739942.2.azuredatabricks.net
   prod:
@@ -70,3 +70,4 @@ targets:
       user_name: ${var.email}
     workspace:
       host: https://adb-6718246255739942.2.azuredatabricks.net
+      root_path: /Shared/.bundle/prod/invaas
