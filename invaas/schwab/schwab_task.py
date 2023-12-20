@@ -1,5 +1,3 @@
-# Task class for Schwab trading
-
 import random
 
 from invaas.task import Task

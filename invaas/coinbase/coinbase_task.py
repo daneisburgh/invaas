@@ -1,16 +1,12 @@
-# Task class for Coinbase trading
-
 import random
 import requests
 import uuid
-import warnings
 
 import pandas as pd
 
 from invaas.task import Task
 from invaas.coinbase.coinbase_client import CoinbaseClient, OrderSide
 
-warnings.filterwarnings("ignore")
 
 
 class CoinbaseTask(Task):
