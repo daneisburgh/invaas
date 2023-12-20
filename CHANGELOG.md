@@ -2,6 +2,35 @@
 
 
 
+## v1.2.0 (2023-12-20)
+
+### Documentation
+
+* docs: update CHANGELOG ([`1367e54`](https://github.com/daneisburgh/invaas/commit/1367e545064b2f1269c6ad19079ca7a62d5bc73a))
+
+### Feature
+
+* feat: update deployment config target variables ([`ad416a2`](https://github.com/daneisburgh/invaas/commit/ad416a266f1943ed4e4fc9e69ec27061946f7337))
+
+* feat: update deployment config task variables ([`8a2b134`](https://github.com/daneisburgh/invaas/commit/8a2b134338524defc172fdaa1b93b2053f6f5474))
+
+* feat: update task app env variable ([`e117190`](https://github.com/daneisburgh/invaas/commit/e1171903cb2cb8588016421a6d12b455325b9f23))
+
+### Fix
+
+* fix: coinbase and schwab tasks ([`c913a61`](https://github.com/daneisburgh/invaas/commit/c913a615ee667a0760951381bd29bef0980ec5d1))
+
+### Refactor
+
+* refactor: update task logging ([`16a3019`](https://github.com/daneisburgh/invaas/commit/16a301999d3233733d029f31c72bf47b97f0597c))
+
+* refactor: coinbase and schwab notebooks ([`7ed9eba`](https://github.com/daneisburgh/invaas/commit/7ed9ebafdcfb0a5f49112738567c8368f99f0121))
+
+### Style
+
+* style: format files ([`5e267f0`](https://github.com/daneisburgh/invaas/commit/5e267f02ac590bad148f4836a514e870417ea0d2))
+
+
 ## v1.1.2 (2023-12-11)
 
 ### Fix
@@ -26,7 +55,11 @@
 
 ### Build
 
-* build: update databricks config ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
+* build: update databricks config
+
+- change workflow schedule
+- add environment variables
+- update notebook tasks ([`f17ae29`](https://github.com/daneisburgh/invaas/commit/f17ae293da8a7fb291983beaaaa87450408cee95))
 
 ### Chore
 
