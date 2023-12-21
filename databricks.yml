@@ -47,12 +47,12 @@ resources:
           job_cluster_key: job_cluster
           notebook_task:
             notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
-        - task_key: schwab
-          depends_on:
-            - task_key: coinbase
-          job_cluster_key: job_cluster
-          notebook_task:
-            notebook_path: "invaas/schwab/schwab_notebook.ipynb"
+        # - task_key: schwab
+        #   depends_on:
+        #     - task_key: coinbase
+        #   job_cluster_key: job_cluster
+        #   notebook_task:
+        #     notebook_path: "invaas/schwab/schwab_notebook.ipynb"
 targets:
   dev:
     mode: development
