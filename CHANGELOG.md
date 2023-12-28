@@ -2,6 +2,13 @@
 
 
 
+## v1.2.1 (2023-12-21)
+
+### Fix
+
+* fix: temporarily disable schwab task ([`acc7876`](https://github.com/daneisburgh/invaas/commit/acc7876d68b0d818ba1029677d62d0791f904bae))
+
+
 ## v1.2.0 (2023-12-20)
 
 ### Documentation
