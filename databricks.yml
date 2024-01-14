@@ -1,23 +1,38 @@
 # This is a Databricks asset bundle definition for invaas.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+variables:
+  app_name:
+    default: invaas
+  email:
+    default: daneisburgh@gmail.com
+  schedule_pause_status:
+    default: "UNPAUSED"
+  root_path:
+    default: "/Workspace/Shared/.bundle/prod/invaas/files"
 bundle:
-  name: invaas
+  name: ${var.app_name}
 resources:
   jobs:
     invaas:
-      name: invaas
+      name: ${var.app_name}
+      timeout_seconds: 900
+      max_concurrent_runs: 1
       schedule:
-        quartz_cron_expression: "44 55 * * * ?"
+        quartz_cron_expression: "0 0 0 * * ?"
         timezone_id: UTC
+        pause_status: ${var.schedule_pause_status}
       job_clusters:
         - job_cluster_key: job_cluster
           new_cluster:
             spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_F4s_v2
+            node_type_id: Standard_F4s
             data_security_mode: LEGACY_SINGLE_USER_STANDARD
             spark_conf:
               spark.databricks.cluster.profile: singleNode
               spark.master: "local[*,4]"
+            spark_env_vars:
+              APP_ENV: ${bundle.target}
+              APP_ROOT_PATH: ${var.root_path}
             custom_tags:
               ResourceClass: SingleNode
             azure_attributes:
@@ -26,17 +41,33 @@ resources:
               spot_bid_max_price: -1
       email_notifications:
         on_failure:
-          - daneisburgh@gmail.com
+          - ${var.email}
       tasks:
-        - task_key: notebook_task
+        - task_key: coinbase
           job_cluster_key: job_cluster
           notebook_task:
-            notebook_path: ./notebooks/invaas-notebook.ipynb
+            notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
+        # - task_key: schwab
+        #   depends_on:
+        #     - task_key: coinbase
+        #   job_cluster_key: job_cluster
+        #   notebook_task:
+        #     notebook_path: "invaas/schwab/schwab_notebook.ipynb"
 targets:
+  dev:
+    mode: development
+    default: true
+    run_as:
+      user_name: ${var.email}
+    variables:
+      schedule_pause_status: "PAUSED"
+      root_path: "/Workspace/Shared/.bundle/dev/${var.email}/invaas/files"
+    workspace:
+      host: https://adb-6718246255739942.2.azuredatabricks.net
   prod:
     mode: production
+    run_as:
+      user_name: ${var.email}
     workspace:
       host: https://adb-6718246255739942.2.azuredatabricks.net
       root_path: /Shared/.bundle/prod/invaas
-    run_as:
-      user_name: daneisburgh@gmail.com

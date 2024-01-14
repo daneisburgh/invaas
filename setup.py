@@ -12,7 +12,6 @@ PACKAGE_REQUIREMENTS = [
     "pandas==2.1.3",
     "pandas-ta==0.3.14b",
     "python-dotenv==1.0.0",
-    "scikit-learn==1.3.2",
     "yfinance==0.2.31",
 ]
 
@@ -28,17 +27,19 @@ DEV_REQUIREMENTS = [
     "pyspark",
     "pytest",
     "pytest-cov",
+    "python-semantic-release",
+    "scikit-learn",
     "setuptools",
     "wheel",
 ]
 
 setup(
     name="invaas",
-    packages=find_packages("./invaas"),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     setup_requires=["wheel"],
     install_requires=PACKAGE_REQUIREMENTS,
     extras_require={"dev": DEV_REQUIREMENTS},
     version=__version__,
-    description="Investment as a service",
+    description="Investment as a Service",
     author="daneisburgh@gmail.com",
 )
