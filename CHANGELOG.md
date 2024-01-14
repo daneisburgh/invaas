@@ -2,6 +2,23 @@
 
 
 
+## v1.2.2 (2024-01-14)
+
+### Chore
+
+* chore: update gitignore ([`148a6a8`](https://github.com/daneisburgh/invaas/commit/148a6a85b443d595b30e9235c399fa575e6b4896))
+
+* chore: update gitignore ([`60f1ff4`](https://github.com/daneisburgh/invaas/commit/60f1ff4a17da70d1b61ab5bc6f0525d1d203cee9))
+
+### Ci
+
+* ci: temporarily disable type check ([`75639a9`](https://github.com/daneisburgh/invaas/commit/75639a92c9c733f6ba6e2f9e85f663de764b5e22))
+
+### Fix
+
+* fix: coinbase sell product precision ([`c694898`](https://github.com/daneisburgh/invaas/commit/c694898233a46eb9957ff3d5b6e4457cdec3b748))
+
+
 ## v1.2.1 (2023-12-21)
 
 ### Fix

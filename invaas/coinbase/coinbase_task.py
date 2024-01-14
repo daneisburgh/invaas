@@ -64,7 +64,7 @@ class CoinbaseTask(Task):
         crypto_id = self.__get_crypto_id(product_id)
 
         if product_id in ["BTC-USD", "ETH-USD"]:
-            precision = 8
+            precision = 6
         elif product_id in ["DOT-USD", "SOL-USD"]:
             precision = 3
         elif product_id in ["ATOM-USD"]:
