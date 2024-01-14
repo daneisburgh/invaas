@@ -1,4 +1,5 @@
 .databricks/
+.DS_Store
 .eggs
 .env
 .ipynb_checkpoints/
@@ -8,5 +9,6 @@
 __pycache__/
 build/
 dist/
+notebooks/data
 scratch/**
 !scratch/README.md
