@@ -62,7 +62,15 @@ class CoinbaseTask(Task):
 
     def __sell_product(self, product_id: str, owned_crypto: float):
         crypto_id = self.__get_crypto_id(product_id)
-        sell_amount = self.floor_value(value=owned_crypto, precision=8)
+
+        if product_id in ["BTC-USD", "ETH-USD"]:
+            precision = 8
+        elif product_id in ["DOT-USD", "SOL-USD"]:
+            precision = 3
+        elif product_id in ["ATOM-USD"]:
+            precision = 2
+
+        sell_amount = self.floor_value(value=owned_crypto, precision=precision)
         self.logger.info(f"Sell amount: {sell_amount}")
 
         if sell_amount == 0:
