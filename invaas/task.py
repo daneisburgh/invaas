@@ -10,6 +10,7 @@ import numpy as np
 from abc import ABC
 from dotenv import load_dotenv, find_dotenv
 from pyspark.sql import SparkSession
+from pyspark import SparkConf
 from typing import Union
 
 warnings.filterwarnings("ignore")
@@ -22,7 +23,7 @@ class Task(ABC):
     Create a child from this class and implement the abstract launch method.
     """
 
-    def __init__(self, env: str = "local"):
+    def __init__(self, env: str = None):
         self.env = env if env else os.getenv("APP_ENV")
         self.spark = None if self.env == "local" else SparkSession.builder.getOrCreate()
         self.logger = self.__get_logger()
