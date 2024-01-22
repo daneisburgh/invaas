@@ -11,6 +11,8 @@ from invaas import __version__
 PACKAGE_REQUIREMENTS = [
     "pandas==2.1.3",
     "pandas-ta==0.3.14b",
+    "playwright==1.41.0",
+    "playwright-stealth==1.0.6",
     "python-dotenv==1.0.0",
     "yfinance==0.2.31",
 ]
