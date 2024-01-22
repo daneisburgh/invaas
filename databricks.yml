@@ -8,9 +8,12 @@ variables:
   schedule_pause_status:
     default: "UNPAUSED"
   root_path:
-    default: "/Workspace/Shared/.bundle/prod/invaas/files"
+    default: "/Shared/.bundle/prod/invaas"
 bundle:
   name: ${var.app_name}
+sync:
+  include:
+    - "./setup.py"
 resources:
   jobs:
     invaas:
@@ -32,7 +35,7 @@ resources:
               spark.master: "local[*,4]"
             spark_env_vars:
               APP_ENV: ${bundle.target}
-              APP_ROOT_PATH: ${var.root_path}
+              APP_FILES_PATH: /Workspace${var.root_path}/files
             custom_tags:
               ResourceClass: SingleNode
             azure_attributes:
@@ -43,16 +46,14 @@ resources:
         on_failure:
           - ${var.email}
       tasks:
-        - task_key: coinbase
-          job_cluster_key: job_cluster
-          notebook_task:
-            notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
-        # - task_key: schwab
-        #   depends_on:
-        #     - task_key: coinbase
+        # - task_key: coinbase
         #   job_cluster_key: job_cluster
         #   notebook_task:
-        #     notebook_path: "invaas/schwab/schwab_notebook.ipynb"
+        #     notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
+        - task_key: schwab
+          job_cluster_key: job_cluster
+          notebook_task:
+            notebook_path: "invaas/schwab/schwab_notebook.ipynb"
 targets:
   dev:
     mode: development
@@ -61,13 +62,14 @@ targets:
       user_name: ${var.email}
     variables:
       schedule_pause_status: "PAUSED"
-      root_path: "/Workspace/Shared/.bundle/dev/${var.email}/invaas/files"
+      root_path: "/Shared/.bundle/dev/${var.email}/invaas"
     workspace:
       host: https://adb-6718246255739942.2.azuredatabricks.net
+      root_path: ${var.root_path}
   prod:
     mode: production
     run_as:
       user_name: ${var.email}
     workspace:
       host: https://adb-6718246255739942.2.azuredatabricks.net
-      root_path: /Shared/.bundle/prod/invaas
+      root_path: ${var.root_path}
