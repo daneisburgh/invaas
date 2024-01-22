@@ -1,7 +1,8 @@
 import random
 
-from invaas.task import Task
+from invaas.schwab.schwab_api.schwab import Schwab
 from invaas.schwab.cnn_fear_greed_index import get_current_cnn_fear_greed_index
+from invaas.task import Task
 
 
 class SchwabTask(Task):
@@ -9,7 +10,7 @@ class SchwabTask(Task):
     Task class to execute ETL processes for loading and preparing data.
     """
 
-    def __init__(self, env: str = "local"):
+    def __init__(self, env: str = None):
         super().__init__(env=env)
 
         self.product_ids = ["VUG"]
@@ -23,6 +24,18 @@ class SchwabTask(Task):
         self.logger.info(f"Min buy amount: ${self.min_buy_amount}")
         self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
 
+    async def setup_api(self):
+        self.logger.info("Logging in to Schwab")
+        username = self.get_secret(key="SCHWAB-USERNAME")
+        password = self.get_secret(key="SCHWAB-PASSWORD")
+        self.schwab_account_id = self.get_secret("SCHWAB-ACCOUNT-ID")
+        self.schwab_api = Schwab()
+        await self.schwab_api.setup()
+        logged_in = await self.schwab_api.login(username=username, password=password)
+
+        if not logged_in:
+            raise Exception("Unabled to log in to Schwab")
+
     def __get_available_balance(self, account_name: str):
         pass
 
@@ -33,6 +46,23 @@ class SchwabTask(Task):
         pass
 
     def create_orders(self):
+        # Get information about a few tickers
+        quotes = self.schwab_api.quote_v2(["AAPL"])
+        self.logger.info(quotes)
+
+        self.logger.info("Placing a dry run trade for AAPL stock")
+        messages, success = self.schwab_api.trade_v2(
+            ticker="AAPL",
+            side="Buy",
+            qty=1,
+            account_id=self.schwab_account_id,
+            dry_run=True,
+        )
+
+        self.logger.info("The order verification was " + "successful" if success else "unsuccessful")
+        self.logger.info("The order verification produced the following messages: ")
+        self.logger.info(messages)
+
         shuffled_product_ids = self.product_ids
         random.shuffle(shuffled_product_ids)
 
