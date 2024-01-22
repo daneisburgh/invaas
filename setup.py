@@ -14,7 +14,7 @@ PACKAGE_REQUIREMENTS = [
     "playwright==1.41.0",
     "playwright-stealth==1.0.6",
     "python-dotenv==1.0.0",
-    "yfinance==0.2.31",
+    "yfinance==0.2.36",
 ]
 
 DEV_REQUIREMENTS = [
