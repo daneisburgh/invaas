@@ -10,7 +10,7 @@ class SchwabTask(Task):
     Task class to execute ETL processes for loading and preparing data.
     """
 
-    def __init__(self, env: str = None):
+    def __init__(self, env: str):
         super().__init__(env=env)
 
         self.product_ids = ["VUG"]
@@ -46,21 +46,37 @@ class SchwabTask(Task):
         pass
 
     def create_orders(self):
-        # Get information about a few tickers
+        account_info = self.schwab_api.get_account_info_v2()
+        self.logger.info("Account info:")
+        self.logger.info(account_info)
+
+        self.logger.info("AAPL stock quote:")
         quotes = self.schwab_api.quote_v2(["AAPL"])
         self.logger.info(quotes)
 
-        self.logger.info("Placing a dry run trade for AAPL stock")
+        self.logger.info("Placing a dry run sell trade for AAPL stock")
         messages, success = self.schwab_api.trade_v2(
             ticker="AAPL",
-            side="Buy",
-            qty=1,
+            qty=0.0256,
+            side="Sell",
             account_id=self.schwab_account_id,
             dry_run=True,
         )
 
         self.logger.info("The order verification was " + "successful" if success else "unsuccessful")
-        self.logger.info("The order verification produced the following messages: ")
+        self.logger.info("The order verification produced the following messages:")
+        self.logger.info(messages)
+
+        self.logger.info("Placing a dry run trade for buy slice AAPL and GOOG stock")
+        messages, success = self.schwab_api.buy_slice_v2(
+            tickers=["AAPL", "GOOG"],
+            amount_usd=10,
+            account_id=self.schwab_account_id,
+            dry_run=True,
+        )
+
+        self.logger.info("The order verification was " + "successful" if success else "unsuccessful")
+        self.logger.info("The order verification produced the following messages:")
         self.logger.info(messages)
 
         shuffled_product_ids = self.product_ids

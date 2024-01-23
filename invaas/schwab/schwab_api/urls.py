@@ -15,6 +15,10 @@ def order_verification_v2():
     return "https://ausgateway.schwab.com/api/is.TradeOrderManagementWeb/v1/TradeOrderManagementWebPort/orders"
 
 
+def bundle_order_verification_v2():
+    return "https://jfkgateway.schwab.com/api/is.stockbundles/V1/trade/stockbundles/bundleorder"
+
+
 def account_info_v2():
     return (
         "https://ausgateway.schwab.com/api/is.TradeOrderManagementWeb/v1/TradeOrderManagementWebPort/customer/accounts"
