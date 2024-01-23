@@ -34,8 +34,8 @@ resources:
               spark.databricks.cluster.profile: singleNode
               spark.master: "local[*,4]"
             spark_env_vars:
-              APP_ENV: ${bundle.target}
-              APP_FILES_PATH: /Workspace${var.root_path}/files
+              APP-ENV: ${bundle.target}
+              APP-FILES-PATH: /Workspace${var.root_path}/files
             custom_tags:
               ResourceClass: SingleNode
             azure_attributes:

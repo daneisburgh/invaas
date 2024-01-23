@@ -13,7 +13,7 @@ class CoinbaseTask(Task):
     Task class to execute ETL processes for loading and preparing data.
     """
 
-    def __init__(self, env: str = None):
+    def __init__(self, env: str):
         super().__init__(env=env)
 
         self.cb_client = CoinbaseClient(self.get_secret("COINBASE-API-KEY"), self.get_secret("COINBASE-API-SECRET"))
