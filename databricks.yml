@@ -21,8 +21,8 @@ resources:
       timeout_seconds: 900
       max_concurrent_runs: 1
       schedule:
-        quartz_cron_expression: "0 0 0 * * ?"
-        timezone_id: UTC
+        quartz_cron_expression: "0 30 9 * * ?"
+        timezone_id: America/New_York
         pause_status: ${var.schedule_pause_status}
       job_clusters:
         - job_cluster_key: job_cluster
@@ -46,10 +46,10 @@ resources:
         on_failure:
           - ${var.email}
       tasks:
-        # - task_key: coinbase
-        #   job_cluster_key: job_cluster
-        #   notebook_task:
-        #     notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
+        - task_key: coinbase
+          job_cluster_key: job_cluster
+          notebook_task:
+            notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
         - task_key: schwab
           job_cluster_key: job_cluster
           notebook_task:
