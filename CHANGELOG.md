@@ -2,6 +2,81 @@
 
 
 
+## v1.3.0 (2024-01-25)
+
+### Build
+
+* build: update databricks deployment config tasks and schedule ([`0c503f5`](https://github.com/daneisburgh/invaas/commit/0c503f5dfdb7803838e4064dc9112ef37c873466))
+
+* build: update deployment config ([`09f731c`](https://github.com/daneisburgh/invaas/commit/09f731ca50a3d5cd9eaf5036e2e3c125fcc00c6e))
+
+### Chore
+
+* chore: update crypto etf test notebook ([`9a44324`](https://github.com/daneisburgh/invaas/commit/9a44324c4ac86c9406870b7049ca8208da33b8fa))
+
+* chore: add historical fear greed index test notebook ([`7eb54c9`](https://github.com/daneisburgh/invaas/commit/7eb54c9c109c76fdcbc6b32abb282f7879afb40b))
+
+* chore: update test notebook ([`52e7e6c`](https://github.com/daneisburgh/invaas/commit/52e7e6c843dceccc2b492e1cbe8d763686eb10c4))
+
+* chore: remove initial options test notebook ([`02372c2`](https://github.com/daneisburgh/invaas/commit/02372c2024cdc5e089e56fe7d4b8cae0b5968c2e))
+
+* chore: update notebooks ([`df94bc9`](https://github.com/daneisburgh/invaas/commit/df94bc9aa6f2a94f83329a3c2da36e67c28e9fd5))
+
+* chore: update gitignore ([`5f78eca`](https://github.com/daneisburgh/invaas/commit/5f78eca1f96d3933b2ffff6f4d96cca7d5e8ee44))
+
+* chore: update notebooks and add data folder ([`e00ee82`](https://github.com/daneisburgh/invaas/commit/e00ee826bdeb890f025207d9e0ca7eadccfcea46))
+
+* chore: update test notebooks ([`1947267`](https://github.com/daneisburgh/invaas/commit/1947267a2ecc4ed3785323da6d29c010f538a3bc))
+
+### Feature
+
+* feat: update schwab task create order logic ([`a66546c`](https://github.com/daneisburgh/invaas/commit/a66546c2252ba9124ea4a693e546584846c24eb8))
+
+* feat: add initial schwab task create order logic ([`9df85d4`](https://github.com/daneisburgh/invaas/commit/9df85d4bae6671c1824a16b6bd2f68e27ff165c6))
+
+* feat: update coinbase products and order logic ([`de77594`](https://github.com/daneisburgh/invaas/commit/de775944372f3c7969e2bca35c40c199eb1faa06))
+
+* feat: add buy stock slice support to schwab api ([`3393119`](https://github.com/daneisburgh/invaas/commit/3393119299e122299abc729a8639c23a4f11a7f3))
+
+* feat: add initial schwab api logic to task and notebook ([`86ea70b`](https://github.com/daneisburgh/invaas/commit/86ea70bb4067484293f524c3f0628dfd3461a40a))
+
+* feat: add initial schwab api ([`5119864`](https://github.com/daneisburgh/invaas/commit/5119864475a1961e5787aa3e9a31d27e807d6843))
+
+### Fix
+
+* fix: disable schwab request dry run ([`9b4425b`](https://github.com/daneisburgh/invaas/commit/9b4425b58e6f2025aebb22f4776f379d890b9e5c))
+
+* fix: coinbase task buy amount logic ([`083adc2`](https://github.com/daneisburgh/invaas/commit/083adc215a23f90d8ec2694c555f045a22be7b8d))
+
+* fix: environment variable name formats ([`fde8ca7`](https://github.com/daneisburgh/invaas/commit/fde8ca738ad2e40da7cdf12592a3bcee1c1e7256))
+
+* fix: bump yfinance version ([`f634dfb`](https://github.com/daneisburgh/invaas/commit/f634dfbdf5f92942b62a39f3869289b0b9daaa9a))
+
+* fix: add playwright package requirements ([`6286f87`](https://github.com/daneisburgh/invaas/commit/6286f876686c110fa300682b9a61f86630d4010b))
+
+### Refactor
+
+* refactor: schwab api methods and logging ([`29628d5`](https://github.com/daneisburgh/invaas/commit/29628d5cceb11631eeeaf6cf8a590597deb745d9))
+
+* refactor: app environment variable name ([`707c533`](https://github.com/daneisburgh/invaas/commit/707c533442ca3719f40538d74f36392d2a661c9c))
+
+* refactor: coinbase task ([`516966b`](https://github.com/daneisburgh/invaas/commit/516966b62cf409b606c29fd835548ef1d9369950))
+
+* refactor: task environment parameter ([`d1ab86f`](https://github.com/daneisburgh/invaas/commit/d1ab86f12ca31311885c4cb6cfaa35558384c576))
+
+### Style
+
+* style: clear notebooks and format files ([`022d3c4`](https://github.com/daneisburgh/invaas/commit/022d3c4d153527ea87d647fb165885c1c74b3bb2))
+
+* style: format files ([`3449816`](https://github.com/daneisburgh/invaas/commit/3449816a58f644c83f42f3b0318295580c65ce9f))
+
+* style: format files ([`e066dff`](https://github.com/daneisburgh/invaas/commit/e066dffc07bafdb517b35c546cee2ed22f87d9dc))
+
+### Unknown
+
+* Merge branch &#39;main&#39; into develop ([`dd6e79d`](https://github.com/daneisburgh/invaas/commit/dd6e79d680dd6060d8fdfe8c13988ee8b84df718))
+
+
 ## v1.2.2 (2024-01-14)
 
 ### Chore
@@ -10,6 +85,14 @@
 
 * chore: update gitignore ([`60f1ff4`](https://github.com/daneisburgh/invaas/commit/60f1ff4a17da70d1b61ab5bc6f0525d1d203cee9))
 
+* chore: update gitignore ([`b3b423c`](https://github.com/daneisburgh/invaas/commit/b3b423ce249cf8810750f61f222444c4bae82624))
+
+* chore: add notebooks ([`4839dce`](https://github.com/daneisburgh/invaas/commit/4839dce6fc41f6def583db28c544e26f5c145f5d))
+
+* chore: add historical cnn fear greed index data for testing ([`8393414`](https://github.com/daneisburgh/invaas/commit/8393414517938d526d77dece0fdddc429bbd532b))
+
+* chore: remove notebooks ([`416731c`](https://github.com/daneisburgh/invaas/commit/416731c1feab6132eaf09783afa3ee1e1c68d536))
+
 ### Ci
 
 * ci: temporarily disable type check ([`75639a9`](https://github.com/daneisburgh/invaas/commit/75639a92c9c733f6ba6e2f9e85f663de764b5e22))
@@ -17,6 +100,16 @@
 ### Fix
 
 * fix: coinbase sell product precision ([`c694898`](https://github.com/daneisburgh/invaas/commit/c694898233a46eb9957ff3d5b6e4457cdec3b748))
+
+* fix: coinbase sell product precision ([`ac9c54e`](https://github.com/daneisburgh/invaas/commit/ac9c54e35f9deae68f6d449ad23ab25c34ba6b09))
+
+### Unknown
+
+* Merge branch &#39;main&#39; into develop ([`e540113`](https://github.com/daneisburgh/invaas/commit/e5401138875b7bacaccb0f152a9119791d325d5d))
+
+* Merge branch &#39;develop&#39; of https://github.com/daneisburgh/invaas into develop ([`ea9ef37`](https://github.com/daneisburgh/invaas/commit/ea9ef37db067ed19f5d960b09c4114045ec19694))
+
+* Merge branch &#39;main&#39; into develop ([`42d9ee2`](https://github.com/daneisburgh/invaas/commit/42d9ee25a40745bbd057f3a59a8ec9e545527b6d))
 
 
 ## v1.2.1 (2023-12-21)
