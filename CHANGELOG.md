@@ -2,6 +2,29 @@
 
 
 
+## v1.3.1 (2024-01-25)
+
+### Build
+
+* build: add package requirements ([`42a22df`](https://github.com/daneisburgh/invaas/commit/42a22df9aebf54840f092dc3016afc8b56969792))
+
+* build: update task dependency ([`47e76b6`](https://github.com/daneisburgh/invaas/commit/47e76b6229953fa7022476181db27b53afa89386))
+
+### Chore
+
+* chore: update test notebook ([`6e0ada0`](https://github.com/daneisburgh/invaas/commit/6e0ada0718d979395380e4b7c85e13cdf5cc04f7))
+
+### Fix
+
+* fix: notebook pip install ([`bfb4feb`](https://github.com/daneisburgh/invaas/commit/bfb4febfbe7c45cc6189576539f24c2aa6a478fd))
+
+* fix: schwab task product and order logic ([`d3f1dad`](https://github.com/daneisburgh/invaas/commit/d3f1dad475bc6e09221bdc2c8532f7afd7741551))
+
+* fix: schwab auth and buy order message handling ([`dc8fe2f`](https://github.com/daneisburgh/invaas/commit/dc8fe2fcd191916232967bd8166de489edd29dfa))
+
+* fix: remove unsupported coinbase products ([`514c944`](https://github.com/daneisburgh/invaas/commit/514c9444a6c28fe8ccea24c9c2af859b8f5c5dd2))
+
+
 ## v1.3.0 (2024-01-25)
 
 ### Build
