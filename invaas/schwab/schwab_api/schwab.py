@@ -1,5 +1,4 @@
 import json
-import urllib.parse
 import requests
 
 from invaas.schwab.schwab_api import urls
@@ -15,6 +14,7 @@ class Schwab(SessionManager):
         """
         self.headless = kwargs.get("headless", True)
         self.browserType = kwargs.get("browserType", "firefox")
+        self.schwab_account_id = kwargs.get("schwab_account_id")
         super(Schwab, self).__init__()
 
     def trade_v2(
@@ -22,7 +22,6 @@ class Schwab(SessionManager):
         ticker,
         side,
         qty,
-        account_id,
         dry_run=True,
         # The Fields below are experimental fields that should only be changed if you know what you're doing.
         order_type=49,
@@ -36,7 +35,6 @@ class Schwab(SessionManager):
         ticker (str) - The symbol you want to trade.
         side (str) - Either 'Buy' or 'Sell'.
         qty (int) - The amount of shares to buy/sell.
-        account_id (int) - The account ID to place the trade on.
         order_type (int) - The order type. There exists types beyond 49 (Market) and 50 (Limit).
         duration (int) - The duration type for the order.
         limit_price (number) - The limit price to set with the order, if necessary.
@@ -51,12 +49,12 @@ class Schwab(SessionManager):
         elif side == "Sell":
             buySellCode = "50"
         else:
-            raise Exception("side must be either Buy or Sell")
+            raise Exception("Side must be either Buy or Sell")
 
         self.update_token(token_type="update")
 
         data = {
-            "UserContext": {"AccountId": str(account_id), "AccountColor": 0},
+            "UserContext": {"AccountId": str(self.schwab_account_id), "AccountColor": 0},
             "OrderStrategy": {
                 # Unclear what the security types map to.
                 "PrimarySecurityType": primary_security_type,
@@ -113,7 +111,6 @@ class Schwab(SessionManager):
         data["OrderProcessingControl"] = 2
         self.update_token(token_type="update")
         r = requests.post(urls.order_verification_v2(), json=data, headers=self.headers)
-        print(r.status_code)
 
         if r.status_code != 200:
             return [r.text], False
@@ -134,14 +131,12 @@ class Schwab(SessionManager):
         self,
         tickers,
         amount_usd,
-        account_id,
         dry_run=True,
         valid_return_codes={20, 25},
     ):
         """
-        tickers (List[str]) - The stock symbols you want to trade,
-        amount_usd (int) - The total dollar amount to buy (min $5/stock),
-        account_id (int) - The account ID to place the trade on.
+        tickers (List[str]) - The stock symbols you want to trade.
+        amount_usd (int) - The total dollar amount to buy (min $5/stock).
 
         Returns messages (list of strings), is_success (boolean)
         """
@@ -163,7 +158,7 @@ class Schwab(SessionManager):
             )
 
         data = {
-            "AccountNo": account_id,
+            "AccountNo": self.schwab_account_id,
             "TotalAmount": amount_usd,
             "IsAffirmed": True,
             "OrderBundleId": 0,
@@ -206,7 +201,6 @@ class Schwab(SessionManager):
 
         self.update_token(token_type="update")
         r = requests.put(urls.bundle_order_verification_v2(), json=data, headers=request_headers)
-        print(r.status_code)
 
         if r.status_code != 200:
             return [r.text], False
@@ -240,7 +234,7 @@ class Schwab(SessionManager):
         response = json.loads(r.text)
         return response["quotes"]
 
-    def orders_v2(self, account_id=None):
+    def orders_v2(self):
         """
         orders_v2 returns a list of orders for a Schwab Account. It is unclear to me how to filter by specific account.
 
@@ -249,8 +243,7 @@ class Schwab(SessionManager):
 
         self.update_token(token_type="api")
         self.headers["schwab-resource-version"] = "2.0"
-        if account_id:
-            self.headers["schwab-client-account"] = account_id
+        self.headers["schwab-client-account"] = self.schwab_account_id
         r = requests.get(urls.orders_v2(), headers=self.headers)
         if r.status_code != 200:
             return [r.text], False
@@ -259,15 +252,17 @@ class Schwab(SessionManager):
         return response["Orders"]
 
     def get_account_info_v2(self):
-        account_info = dict()
         self.update_token(token_type="api")
         r = requests.get(urls.positions_v2(), headers=self.headers)
         response = json.loads(r.text)
+
         for account in response["accounts"]:
             positions = list()
+
             for security_group in account["groupedPositions"]:
                 if security_group["groupName"] == "Cash":
                     continue
+
                 for position in security_group["positions"]:
                     positions.append(
                         Position(
@@ -280,20 +275,22 @@ class Schwab(SessionManager):
                             0 if "priceDetail" not in position else float(position["priceDetail"]["marketValue"]),
                         )._as_dict()
                     )
-            account_info[int(account["accountId"])] = Account(
-                account["accountId"],
-                positions,
-                account["totals"]["marketValue"],
-                account["totals"]["cashInvestments"],
-                account["totals"]["accountValue"],
-                account["totals"].get("costBasis", 0),
-            )._as_dict()
 
-        return account_info
+            if account["accountId"] == self.schwab_account_id:
+                return Account(
+                    account["accountId"],
+                    positions,
+                    account["totals"]["marketValue"],
+                    account["totals"]["cashInvestments"],
+                    account["totals"]["accountValue"],
+                    account["totals"].get("costBasis", 0),
+                )._as_dict()
+
+        return None
 
     def update_token(self, token_type="api"):
         r = self.session.get(f"https://client.schwab.com/api/auth/authorize/scope/{token_type}")
         if not r.ok:
-            raise ValueError("Error updating Bearer token: {r.reason}")
+            raise ValueError(f"Error updating Bearer token: {r.reason}")
         token = json.loads(r.text)["token"]
         self.headers["authorization"] = f"Bearer {token}"

@@ -1,5 +1,5 @@
-import requests
 import re
+import requests
 
 from playwright.async_api import async_playwright, Route, TimeoutError
 from playwright_stealth import stealth_async
@@ -112,14 +112,10 @@ class SessionManager:
             async with self.page.expect_navigation():
                 await self.page.frame(name=login_frame).press('[placeholder="Password"]', "Enter")
         except TimeoutError:
-            raise Exception("Login was not successful; please check username and password")
+            raise Exception("Login was not successful, please check username and password")
 
         # NOTE: THIS FUNCTIONALITY WILL SOON BE UNSUPPORTED/DEPRECATED.
         if self.page.url != urls.trade_ticket():
-            # We need further authentication, so we'll send an SMS
-            print("Authentication state is not available. We will need to go through two factor authentication.")
-            print("You should receive a code through SMS soon")
-
             # Send an SMS. The UI is inconsistent so we'll try both.
             try:
                 async with self.page.expect_navigation():
@@ -128,11 +124,10 @@ class SessionManager:
                 await self.page.click('input[name="DeliveryMethodSelection"]')
                 await self.page.click("text=Text Message")
                 await self.page.click('input:has-text("Continue")')
-            return False
+
+            raise Exception("Unabled to log in to Schwab")
 
         await self.page.wait_for_selector("#_txtSymbol")
 
         # Save our session
         await self.save_and_close_session()
-
-        return True
