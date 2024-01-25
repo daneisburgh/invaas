@@ -13,7 +13,9 @@ PACKAGE_REQUIREMENTS = [
     "pandas-ta==0.3.14b",
     "playwright==1.41.0",
     "playwright-stealth==1.0.6",
+    "pyotp==2.9.0",
     "python-dotenv==1.0.0",
+    "python-vipaccess==0.14.1",
     "yfinance==0.2.36",
 ]
 
