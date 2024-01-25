@@ -18,7 +18,7 @@ class CoinbaseTask(Task):
 
         self.cb_client = CoinbaseClient(self.get_secret("COINBASE-API-KEY"), self.get_secret("COINBASE-API-SECRET"))
 
-        self.product_ids = ["BTC-USD", "ETH-USD", "SOL-USD", "XRP-USD", "ADA-USD", "AVAX-USD", "LINK-USD", "DOT-USD"]
+        self.product_ids = ["BTC-USD", "ETH-USD", "SOL-USD", "XRP-USD", "DOT-USD"]
         self.logger.info(f"Products to trade: {str(self.product_ids)}")
 
         self.min_fear_greed_index_to_buy = 60
