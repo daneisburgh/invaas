@@ -30,13 +30,7 @@ class SessionManager:
 
         await stealth_async(self.page)
 
-    def check_auth(self):
-        r = self.session.get(urls.account_info_v2())
-        if r.status_code != 200:
-            return False
-        return True
-
-    async def save_and_close_session(self):
+    async def close_api_session(self):
         cookies = {cookie["name"]: cookie["value"] for cookie in await self.page.context.cookies()}
         self.session.cookies = cookiejar_from_dict(cookies)
         await self.page.close()
@@ -125,9 +119,6 @@ class SessionManager:
                 await self.page.click("text=Text Message")
                 await self.page.click('input:has-text("Continue")')
 
-            raise Exception("Unabled to log in to Schwab")
+            raise Exception("Unable to log in to Schwab")
 
         await self.page.wait_for_selector("#_txtSymbol")
-
-        # Save our session
-        await self.save_and_close_session()

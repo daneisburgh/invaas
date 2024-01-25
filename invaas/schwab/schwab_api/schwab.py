@@ -176,7 +176,6 @@ class Schwab(SessionManager):
             return [r.text], False
 
         response = json.loads(r.text)
-
         messages = list()
 
         for message in response["BundleMessages"]:
@@ -206,13 +205,12 @@ class Schwab(SessionManager):
             return [r.text], False
 
         response = json.loads(r.text)
-
         messages = list()
-        if "orderMessages" in response["orderStrategy"] and response["orderStrategy"]["orderMessages"] is not None:
-            for message in response["orderStrategy"]["orderMessages"]:
-                messages.append(message["message"])
 
-        if response["orderStrategy"]["orderReturnCode"] in valid_return_codes:
+        for message in response["BundleMessages"]:
+            messages.append(message)
+
+        if response["OesReturnCode"] in valid_return_codes:
             return messages, True
 
         return messages, False
@@ -294,3 +292,9 @@ class Schwab(SessionManager):
             raise ValueError(f"Error updating Bearer token: {r.reason}")
         token = json.loads(r.text)["token"]
         self.headers["authorization"] = f"Bearer {token}"
+
+    async def get_equity_rating(self, ticker: str):
+        async with self.page.expect_navigation():
+            await self.page.goto(f"https://client.schwab.com/app/research/#/stocks/{ticker}", timeout=60000)
+        equity_rating_section = await self.page.get_by_text("Percentile Ranking =").inner_text(timeout=60000)
+        return int(equity_rating_section.split(" = ")[-1])
