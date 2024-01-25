@@ -45,7 +45,7 @@ class CoinbaseTask(Task):
         buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
         self.logger.info(f"Buy amount: ${buy_amount:.2f}")
 
-        if buy_amount > available_cash:
+        if buy_amount >= available_cash:
             self.logger.info(f"Not enough funds to buy {product_id}")
         else:
             order_id = str(uuid.uuid4())
@@ -72,7 +72,7 @@ class CoinbaseTask(Task):
         self.logger.info(f"Sell amount: {sell_amount}")
 
         if sell_amount == 0:
-            self.logger.info(f"No {crypto_id} to be sold")
+            self.logger.info(f"Not enough {crypto_id} to be sold")
         else:
             order_id = str(uuid.uuid4())
             self.logger.info(f"Placing market sell order: {order_id}")
@@ -94,9 +94,6 @@ class CoinbaseTask(Task):
             crypto_id = self.__get_crypto_id(product_id)
             owned_product = self.__get_available_balance(f"{crypto_id} Wallet")
             self.logger.info(f"Owned {crypto_id}: {owned_product:.10f}")
-
-            spot_price = float(self.cb_client.get_product(product_id=product_id)["price"])
-            self.logger.info(f"Current {crypto_id} spot price: ${spot_price:.2f}")
 
             available_cash = self.__get_available_balance("Cash (USD)")
             self.logger.info(f"Available cash: ${available_cash:.2f}")
