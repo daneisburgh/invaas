@@ -1,10 +1,13 @@
+import pandas as pd
+import pandas_ta as ta
 import random
 import re
 import requests
+import yfinance as yf
 
 from invaas.task import Task
 from invaas.schwab.schwab_api.schwab import Schwab
-from invaas.schwab.cnn_fear_greed_index import get_current_cnn_fear_greed_index
+from invaas.schwab.cnn_fear_greed_index import get_current_cnn_fear_greed_index, get_historical_cnn_fear_greed_index
 
 
 class SchwabTask(Task):
@@ -18,8 +21,17 @@ class SchwabTask(Task):
         self.product_ids = self.__get_top_stocks()
         self.logger.info(f"Products to trade: {str(self.product_ids)}")
 
-        self.current_fear_greed_index = int(get_current_cnn_fear_greed_index().value)
+        self.historical_period = 14
+        self.logger.info(f"Historical period used for analysis: {self.historical_period} days")
+
+        self.current_fear_greed_index, self.previous_max_fear_greed_index = self.__get_fear_greed_index_data()
         self.logger.info(f"Current fear greed index: {self.current_fear_greed_index}")
+        self.logger.info(f"Previous max fear greed index: {self.previous_max_fear_greed_index}")
+
+        self.min_buy_amount = 5
+        self.max_buy_amount = 100
+        self.logger.info(f"Min buy amount: ${self.min_buy_amount}")
+        self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
 
     async def setup_api(self):
         self.logger.info("Logging in to Schwab")
@@ -51,21 +63,58 @@ class SchwabTask(Task):
 
         return top_stocks
 
-    def __buy_product(self, product_id: str, buy_amount: float):
-        messages, success = self.schwab_api.buy_slice_v2(
-            tickers=[product_id],
-            amount_usd=buy_amount,
-            dry_run=True,
+    def __get_fear_greed_index_data(self):
+        df = pd.DataFrame(data=get_historical_cnn_fear_greed_index()["data"])
+        df.set_index(
+            pd.DatetimeIndex([pd.Timestamp(x, unit="ms", tz="UTC") for x in df.x]),
+            inplace=True,
         )
+        df.rename(columns={"y": "fear_greed_index"}, inplace=True)
+        df.sort_index(inplace=True)
+        df["fear_greed_index"] = df.fear_greed_index.fillna(method="ffill").astype(float)
+        df["previous_max_fear_greed_index"] = (
+            df["fear_greed_index"].rolling(window=self.historical_period, min_periods=self.historical_period).max()
+        )
+        return int(df.fear_greed_index.values[-1]), int(df.previous_max_fear_greed_index.values[-1])
 
-        if not success:
-            raise Exception(f"Error buying {product_id}: {str(messages)}")
+    def __get_product_rsi(self, product_id: str):
+        df = yf.Ticker(product_id).history(interval="1d", period="1y")
+        df.columns = map(str.lower, df.columns)
 
-    def __sell_product(self, product_id: str, owned_product: float):
-        self.logger.info(f"Sell {owned_product} shares of {product_id}")
+        timestamps = [pd.to_datetime(x, utc=True).round(freq="D") for x in df.index.values]
+        timestamps_date_range = pd.date_range(start=timestamps[0], end=timestamps[-1], freq="D")
+        df = df.set_index(pd.DatetimeIndex(timestamps)).reindex(timestamps_date_range, method="ffill")
+
+        RsiStrategy = ta.Strategy(name="RSI", ta=[{"kind": "rsi", "length": self.historical_period}])
+        df.ta.strategy(RsiStrategy)
+        df.sort_index(inplace=True)
+
+        return int(df[f"RSI_{self.historical_period}"].values[-1])
+
+    def __buy_product(self, product_id: str, available_cash: float):
+        buy_amount = int(available_cash / len(self.product_ids) / 10)
+        buy_amount = buy_amount if buy_amount >= self.min_buy_amount else self.min_buy_amount
+        buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
+        self.logger.info(f"Buy amount: ${buy_amount:.2f}")
+
+        if buy_amount >= available_cash:
+            self.logger.info(f"Not enough funds to buy {product_id}")
+        else:
+            self.logger.info(f"Placing market buy order for {product_id}")
+            messages, success = self.schwab_api.buy_slice_v2(
+                tickers=[product_id],
+                amount_usd=buy_amount,
+                dry_run=True,
+            )
+
+            if not success:
+                raise Exception(f"Error buying {product_id}: {str(messages)}")
+
+    def __sell_product(self, product_id: str, owned_product_quantity: float):
+        self.logger.info(f"Selling {owned_product_quantity} shares of {product_id}")
         messages, success = self.schwab_api.trade_v2(
             ticker=product_id,
-            qty=owned_product,
+            qty=owned_product_quantity,
             side="Sell",
             dry_run=True,
         )
@@ -74,66 +123,40 @@ class SchwabTask(Task):
             raise Exception(f"Error selling {product_id}: {str(messages)}")
 
     def create_orders(self):
-        shuffled_product_ids = self.product_ids
-        random.shuffle(shuffled_product_ids)
-
         account_info = self.schwab_api.get_account_info_v2()
-
-        available_cash = account_info["available_cash"]
-        self.logger.info(f"Available cash: ${available_cash:.2f}")
 
         owned_products = [x["symbol"] for x in account_info["positions"]]
         self.logger.info(f"Owned products: {owned_products}")
 
         for position in account_info["positions"]:
             if position["symbol"] not in self.product_ids:
-                self.__sell_product(product_id=position["symbol"], owned_product=position["quantity"])
+                self.logger.info(f"{position['symbol']} not in products to trade")
+                self.__sell_product(product_id=position["symbol"], owned_product_quantity=position["quantity"])
 
-        min_buy_amount = 5
-        max_buy_amount = 100
-        self.logger.info(f"Min buy amount: ${min_buy_amount}")
-        self.logger.info(f"Max buy amount: ${max_buy_amount}")
+        print()
 
-        total_products = len(self.product_ids)
-        buy_amount = self.floor_value(value=(available_cash / total_products / 10), precision=2)
-        buy_amount = buy_amount if buy_amount >= min_buy_amount else min_buy_amount
-        buy_amount = buy_amount if buy_amount <= max_buy_amount else max_buy_amount
-        self.logger.info(f"Buy amount: ${buy_amount:.2f}")
+        shuffled_product_ids = self.product_ids
+        random.shuffle(shuffled_product_ids)
 
-        if (buy_amount * total_products) > available_cash:
-            self.logger.info(f"Not enough funds to buy")
+        for product_id in shuffled_product_ids:
+            self.logger.info(f"Running process for {product_id}")
 
-        for product_id in self.product_ids:
-            pass
+            available_cash = account_info["available_cash"]
+            self.logger.info(f"Available cash: ${available_cash:.2f}")
 
-    def test_orders(self):
-        account_info = self.schwab_api.get_account_info_v2()
-        self.logger.info("Account info:")
-        self.logger.info(account_info)
+            product_rsi = self.__get_product_rsi(product_id=product_id)
+            self.logger.info(f"RSI {self.historical_period} for {product_id}: {product_rsi}")
 
-        self.logger.info("AAPL stock quote:")
-        quotes = self.schwab_api.quote_v2(["AAPL"])
-        self.logger.info(quotes)
+            if product_rsi >= self.previous_max_fear_greed_index or (
+                product_rsi >= 50 and self.current_fear_greed_index >= 50
+            ):
+                self.__buy_product(product_id=product_id, available_cash=available_cash)
+            else:
+                product_position = next(
+                    (position for position in account_info["positions"] if position["symbol"] == product_id), None
+                )
 
-        self.logger.info("Placing a dry run sell trade for AAPL stock")
-        messages, success = self.schwab_api.trade_v2(
-            ticker="AAPL",
-            qty=0.0256,
-            side="Sell",
-            dry_run=True,
-        )
+                if product_position is not None:
+                    self.__sell_product(product_id=product_id, owned_product_quantity=product_position["quantity"])
 
-        self.logger.info("The order verification was " + "successful" if success else "unsuccessful")
-        self.logger.info("The order verification produced the following messages:")
-        self.logger.info(messages)
-
-        self.logger.info("Placing a dry run trade for buy slice AAPL and GOOG stock")
-        messages, success = self.schwab_api.buy_slice_v2(
-            tickers=["AAPL", "GOOG"],
-            amount_usd=10,
-            dry_run=True,
-        )
-
-        self.logger.info("The order verification was " + "successful" if success else "unsuccessful")
-        self.logger.info("The order verification produced the following messages:")
-        self.logger.info(messages)
+        print()
