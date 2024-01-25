@@ -104,7 +104,7 @@ class SchwabTask(Task):
             messages, success = self.schwab_api.buy_slice_v2(
                 tickers=[product_id],
                 amount_usd=buy_amount,
-                dry_run=True,
+                dry_run=False,
             )
 
             if not success:
@@ -116,7 +116,7 @@ class SchwabTask(Task):
             ticker=product_id,
             qty=owned_product_quantity,
             side="Sell",
-            dry_run=True,
+            dry_run=False,
         )
 
         if not success:
