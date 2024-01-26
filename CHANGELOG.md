@@ -2,6 +2,25 @@
 
 
 
+## v1.3.2 (2024-01-26)
+
+### Chore
+
+* chore: update test notebooks ([`40eda41`](https://github.com/daneisburgh/invaas/commit/40eda41e085af52420af3a206ec60e581d724c97))
+
+* chore: format files ([`7181685`](https://github.com/daneisburgh/invaas/commit/71816856a1e8496013ef5db4c216fef15a958812))
+
+* chore: update test notebooks ([`3b8b827`](https://github.com/daneisburgh/invaas/commit/3b8b827e89ae892fd489bec0e14c9ef43bd3de27))
+
+### Fix
+
+* fix: update deployment config to separate workflows by type and schedule ([`c84574b`](https://github.com/daneisburgh/invaas/commit/c84574b435d0e7e1944ea78d97b863bdfc36a724))
+
+### Style
+
+* style: format files ([`301a861`](https://github.com/daneisburgh/invaas/commit/301a86131fc600ab8cfc0a19b7fcdd90676ed806))
+
+
 ## v1.3.1 (2024-01-25)
 
 ### Build
