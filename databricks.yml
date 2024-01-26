@@ -1,58 +1,66 @@
 # This is a Databricks asset bundle definition for invaas.
 # See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: invaas
+sync:
+  include:
+    - "./setup.py"
 variables:
-  app_name:
-    default: invaas
   email:
     default: daneisburgh@gmail.com
   schedule_pause_status:
     default: "UNPAUSED"
   root_path:
     default: "/Shared/.bundle/prod/invaas"
-bundle:
-  name: ${var.app_name}
-sync:
-  include:
-    - "./setup.py"
+common_settings: &common_settings
+  timeout_seconds: 900
+  max_concurrent_runs: 1
+  email_notifications:
+    on_failure:
+      - ${var.email}
+  job_clusters:
+    - job_cluster_key: job_cluster
+      new_cluster:
+        spark_version: 13.3.x-scala2.12
+        node_type_id: Standard_F4s
+        data_security_mode: LEGACY_SINGLE_USER_STANDARD
+        spark_conf:
+          spark.databricks.cluster.profile: singleNode
+          spark.master: "local[*,4]"
+        spark_env_vars:
+          APP_ENV: ${bundle.target}
+          APP_FILES_PATH: /Workspace${var.root_path}/files
+        custom_tags:
+          ResourceClass: SingleNode
+        azure_attributes:
+          availability: ON_DEMAND_AZURE
+          first_on_demand: 1
+          spot_bid_max_price: -1
 resources:
   jobs:
-    invaas:
-      name: ${var.app_name}
-      timeout_seconds: 900
-      max_concurrent_runs: 1
+    coinbase:
+      name: ${bundle.name}-coinbase
+      <<:
+        - *common_settings
       schedule:
-        quartz_cron_expression: "0 30 9 * * ?"
+        quartz_cron_expression: "0 0 19 * * ?"
         timezone_id: America/New_York
         pause_status: ${var.schedule_pause_status}
-      job_clusters:
-        - job_cluster_key: job_cluster
-          new_cluster:
-            spark_version: 13.3.x-scala2.12
-            node_type_id: Standard_F4s
-            data_security_mode: LEGACY_SINGLE_USER_STANDARD
-            spark_conf:
-              spark.databricks.cluster.profile: singleNode
-              spark.master: "local[*,4]"
-            spark_env_vars:
-              APP_ENV: ${bundle.target}
-              APP_FILES_PATH: /Workspace${var.root_path}/files
-            custom_tags:
-              ResourceClass: SingleNode
-            azure_attributes:
-              availability: ON_DEMAND_AZURE
-              first_on_demand: 1
-              spot_bid_max_price: -1
-      email_notifications:
-        on_failure:
-          - ${var.email}
       tasks:
         - task_key: coinbase
           job_cluster_key: job_cluster
           notebook_task:
             notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
+    schwab:
+      name: ${bundle.name}-schwab
+      <<:
+        - *common_settings
+      schedule:
+        quartz_cron_expression: "0 30 9 ? * MON,TUE,WED,THU,FRI *"
+        timezone_id: America/New_York
+        pause_status: ${var.schedule_pause_status}
+      tasks:
         - task_key: schwab
-          depends_on:
-            - task_key: coinbase
           job_cluster_key: job_cluster
           notebook_task:
             notebook_path: "invaas/schwab/schwab_notebook.ipynb"
