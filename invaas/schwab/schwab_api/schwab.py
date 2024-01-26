@@ -267,9 +267,11 @@ class Schwab(SessionManager):
                             position["symbolDetail"]["symbol"],
                             position["symbolDetail"]["description"],
                             float(position["quantity"]),
-                            0
-                            if "costDetail" not in position
-                            else float(position["costDetail"]["costBasisDetail"]["costBasis"]),
+                            (
+                                0
+                                if "costDetail" not in position
+                                else float(position["costDetail"]["costBasisDetail"]["costBasis"])
+                            ),
                             0 if "priceDetail" not in position else float(position["priceDetail"]["marketValue"]),
                         )._as_dict()
                     )
