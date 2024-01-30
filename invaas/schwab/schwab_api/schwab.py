@@ -22,18 +22,19 @@ class Schwab(SessionManager):
         ticker,
         side,
         qty,
+        asset_class="Stock",
         dry_run=True,
-        # The Fields below are experimental fields that should only be changed if you know what you're doing.
         order_type=49,
         duration=48,
         limit_price=0,
         stop_price=0,
-        primary_security_type=46,
+        primary_security_type=None,
         valid_return_codes={0, 10},
     ):
         """
         ticker (str) - The symbol you want to trade.
         side (str) - Either 'Buy' or 'Sell'.
+        asset_class (str) - Either 'Stock' or 'Option'.
         qty (int) - The amount of shares to buy/sell.
         order_type (int) - The order type. There exists types beyond 49 (Market) and 50 (Limit).
         duration (int) - The duration type for the order.
@@ -44,12 +45,20 @@ class Schwab(SessionManager):
         Returns messages (list of strings), is_success (boolean)
         """
 
-        if side == "Buy":
-            buySellCode = "49"
-        elif side == "Sell":
-            buySellCode = "50"
+        if side == "Buy" and asset_class == "Stock":
+            buy_sell_code = "49"
+            primary_security_type = 46
+        elif side == "Sell" and asset_class == "Stock":
+            buy_sell_code = "50"
+            primary_security_type = 46
+        elif side == "Buy" and asset_class == "Option":
+            buy_sell_code = "201"
+            primary_security_type = 48
+        elif side == "Sell" and asset_class == "Option":
+            buy_sell_code = "204"
+            primary_security_type = 48
         else:
-            raise Exception("Side must be either Buy or Sell")
+            raise Exception(f"Invalid side and/or type: {side}, {asset_class}")
 
         self.update_token(token_type="update")
 
@@ -72,7 +81,7 @@ class Schwab(SessionManager):
                         "LeavesQuantity": str(qty),
                         "Instrument": {"Symbol": ticker},
                         "SecurityType": primary_security_type,
-                        "Instruction": buySellCode,
+                        "Instruction": buy_sell_code,
                     }
                 ],
             },
@@ -84,6 +93,7 @@ class Schwab(SessionManager):
         self.headers["schwab-resource-version"] = "1.0"
 
         r = requests.post(urls.order_verification_v2(), json=data, headers=self.headers)
+
         if r.status_code != 200:
             return [r.text], False
 
@@ -91,10 +101,12 @@ class Schwab(SessionManager):
 
         orderId = response["orderStrategy"]["orderId"]
         firstOrderLeg = response["orderStrategy"]["orderLegs"][0]
+
         if "schwabSecurityId" in firstOrderLeg:
             data["OrderStrategy"]["OrderLegs"][0]["Instrument"]["ItemIssueId"] = firstOrderLeg["schwabSecurityId"]
 
         messages = list()
+
         for message in response["orderStrategy"]["orderMessages"]:
             messages.append(message["message"])
 
@@ -118,6 +130,7 @@ class Schwab(SessionManager):
         response = json.loads(r.text)
 
         messages = list()
+
         if "orderMessages" in response["orderStrategy"] and response["orderStrategy"]["orderMessages"] is not None:
             for message in response["orderStrategy"]["orderMessages"]:
                 messages.append(message["message"])
@@ -248,6 +261,11 @@ class Schwab(SessionManager):
 
         response = json.loads(r.text)
         return response["Orders"]
+
+    def get_balance_positions_v2(self):
+        self.update_token(token_type="api")
+        r = requests.get(urls.balance_positions_v2(), headers=self.headers)
+        return json.loads(r.text)
 
     def get_account_info_v2(self):
         self.update_token(token_type="api")
