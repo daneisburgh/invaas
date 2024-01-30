@@ -42,6 +42,7 @@ class SessionManager:
 
     async def sms_login(self, code):
         # Inconsistent UI for SMS Authentication means we try both
+
         try:
             await self.page.click('input[type="text"]')
             await self.page.fill('input[type="text"]', str(code))
@@ -58,7 +59,7 @@ class SessionManager:
         self.save_and_close_session()
         return self.page.url == urls.account_summary()
 
-    async def captureAuthToken(self, route: Route):
+    async def capture_auth_token(self, route: Route):
         self.headers = await route.request.all_headers()
         await route.continue_()
 
@@ -69,7 +70,7 @@ class SessionManager:
         :param username: The username for the schwab account.
 
         :type password: str
-        :param password: The password for the schwab account/
+        :param password: The password for the schwab account
 
         :type totp_secret: Optional[str]
         :param totp_secret: The TOTP secret used to complete multi-factor authentication
@@ -82,10 +83,10 @@ class SessionManager:
 
         # Log in to schwab using Playwright
         async with self.page.expect_navigation():
-            await self.page.goto("https://www.schwab.com/")
+            await self.page.goto(urls.homepage())
 
         # Capture authorization token.
-        await self.page.route(re.compile(r".*balancespositions*"), self.captureAuthToken)
+        await self.page.route(re.compile(r".*balancespositions*"), self.capture_auth_token)
 
         # Wait for the login frame to load
         login_frame = "schwablmslogin"

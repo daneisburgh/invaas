@@ -1,4 +1,5 @@
 import json
+import re
 import requests
 
 from invaas.schwab.schwab_api import urls
@@ -17,7 +18,7 @@ class Schwab(SessionManager):
         self.schwab_account_id = kwargs.get("schwab_account_id")
         super(Schwab, self).__init__()
 
-    def trade_v2(
+    def trade(
         self,
         ticker,
         side,
@@ -140,7 +141,7 @@ class Schwab(SessionManager):
 
         return messages, False
 
-    def buy_slice_v2(
+    def buy_slice(
         self,
         tickers,
         amount_usd,
@@ -228,7 +229,7 @@ class Schwab(SessionManager):
 
         return messages, False
 
-    def quote_v2(self, tickers):
+    def quote(self, tickers):
         """
         quote_v2 takes a list of Tickers, and returns Quote information through the Schwab API.
         """
@@ -245,7 +246,7 @@ class Schwab(SessionManager):
         response = json.loads(r.text)
         return response["quotes"]
 
-    def orders_v2(self):
+    def orders(self):
         """
         orders_v2 returns a list of orders for a Schwab Account. It is unclear to me how to filter by specific account.
 
@@ -262,12 +263,12 @@ class Schwab(SessionManager):
         response = json.loads(r.text)
         return response["Orders"]
 
-    def get_balance_positions_v2(self):
+    def get_balance_positions(self):
         self.update_token(token_type="api")
         r = requests.get(urls.balance_positions_v2(), headers=self.headers)
         return json.loads(r.text)
 
-    def get_account_info_v2(self):
+    def get_account_info(self):
         self.update_token(token_type="api")
         r = requests.get(urls.positions_v2(), headers=self.headers)
         response = json.loads(r.text)
@@ -318,3 +319,53 @@ class Schwab(SessionManager):
             await self.page.goto(f"https://client.schwab.com/app/research/#/stocks/{ticker}", timeout=60000)
         equity_rating_section = await self.page.get_by_text("Percentile Ranking =").inner_text(timeout=60000)
         return int(equity_rating_section.split(" = ")[-1])
+
+    def get_options_chains(self, ticker: str):
+        options_info = requests.get(f"https://client.schwab.com/symlup/OptionsCwp/Underlying/{ticker}.txt").text
+        options_info = re.sub(r"[\n\t\r]*", "", options_info)
+        options_info = json.loads(options_info.replace('SuggestionBox.JsonpCallback("option",', "")[:-1])
+        expirations = [x["Date"] for x in options_info["Expirations"]]
+        options_chain_url = (
+            f"{urls.options_chain_v2()}/chains?Symbol={ticker}&IncludeGreeks=false&{','.join(expirations)}"
+        )
+        self.update_token("update")
+        return json.loads(requests.get(options_chain_url, headers=self.headers).text)
+
+    def get_transaction_history(self):
+        self.update_token("update")
+        return json.loads(
+            requests.post(
+                urls.transaction_history_v2(),
+                headers=self.headers,
+                json={
+                    "exportType": "Csv",
+                    "includeOptionsInSearch": False,
+                    "selectedTransactionTypes": [
+                        "Adjustments",
+                        "AtmActivity",
+                        "BillPay",
+                        "CorporateActions",
+                        "Checks",
+                        "Deposits",
+                        "DividendsAndCapitalGains",
+                        "ElectronicTransfers",
+                        "Fees",
+                        "Interest",
+                        "Misc",
+                        "SecurityTransfers",
+                        "Taxes",
+                        "Trades",
+                        "VisaDebitCard",
+                        "Withdrawals",
+                    ],
+                    "symbol": "",
+                    "timeFrame": "All",
+                    "bookmark": None,
+                    "shouldPaginate": True,
+                    "selectedAccountId": self.schwab_account_id,
+                    "sortColumn": "Date",
+                    "sortDirection": "Descending",
+                    "accountNickname": "Individual",
+                },
+            ).text
+        )
