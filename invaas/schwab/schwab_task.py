@@ -1,11 +1,8 @@
 import pandas as pd
-import pandas_ta as ta
 import pyotp
-import random
-import re
-import requests
 import time
-import yfinance as yf
+
+from datetime import datetime
 
 from invaas.task import Task
 from invaas.schwab.schwab_api.schwab import Schwab
@@ -19,73 +16,26 @@ class SchwabTask(Task):
 
     def __init__(self, env: str):
         super().__init__(env=env)
+        self.schwab_api = Schwab(schwab_account_id=self.get_secret("SCHWAB-ACCOUNT-ID"))
 
-        self.historical_period = 14
-        self.logger.info(f"Historical period used for analysis: {self.historical_period} days")
-
-        self.min_buy_amount = 5
-        self.max_buy_amount = 100
+        self.min_buy_amount = 10
+        self.max_buy_amount = 1000
         self.logger.info(f"Min buy amount: ${self.min_buy_amount}")
         self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
 
-    async def setup_api_and_get_products(self):
+    async def setup_api(self):
         self.logger.info("Logging in to Schwab")
         username = self.get_secret(key="SCHWAB-USERNAME")
         password = self.get_secret(key="SCHWAB-PASSWORD") + str(
             pyotp.TOTP(self.get_secret(key="SCHWAB-TOTP-SECRET")).now()
         )
 
-        self.schwab_api = Schwab(schwab_account_id=self.get_secret("SCHWAB-ACCOUNT-ID"))
         await self.schwab_api.setup()
         await self.schwab_api.login(username=username, password=password)
-
-        top_products = []
-        etfs = ["QQQ", "VUG", "VGT"]
-
-        with requests.Session() as req:
-            req.headers.update(
-                {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0"}
-            )
-
-            for etf in etfs:
-                r = req.get(f"https://www.zacks.com/funds/etf/{etf}/holding")
-                holdings = re.findall(r"etf\\\/(.*?)\\", r.text)
-                etf_top_holdings = holdings[:50]
-
-                if len(top_products) == 0:
-                    top_products = etf_top_holdings
-                else:
-                    top_products = list(set(top_products).intersection(etf_top_holdings))
-
-        max_equity_rating = 50
-        self.logger.info(f"Max equity rating to buy: {max_equity_rating}")
-
-        current_fear_greed_index, previous_max_fear_greed_index = self.__get_fear_greed_index_data()
-        self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
-        self.logger.info(f"Previous max fear greed index: {previous_max_fear_greed_index}")
-
-        bad_products = []
-
-        for product_id in top_products:
-            product_equity_rating = await self.schwab_api.get_equity_rating(ticker=product_id)
-            product_rsi = self.__get_product_rsi(product_id=product_id)
-            self.logger.info(f"Equity rating and RSI for {product_id}: {product_equity_rating}, {product_rsi}")
-            time.sleep(5)
-
-            if product_equity_rating > max_equity_rating or not (
-                product_rsi >= previous_max_fear_greed_index or (product_rsi >= 50 and current_fear_greed_index >= 50)
-            ):
-                bad_products.append(product_id)
-
-        for product in bad_products:
-            top_products.remove(product)
-
-        self.products_to_buy = top_products
-        self.logger.info(f"Products to buy: {str(self.products_to_buy)}")
-
         await self.schwab_api.close_api_session()
 
     def __get_fear_greed_index_data(self):
+        historical_periods = 14
         df = pd.DataFrame(data=get_historical_cnn_fear_greed_index()["data"])
         df.set_index(
             pd.DatetimeIndex([pd.Timestamp(x, unit="ms", tz="UTC") for x in df.x]),
@@ -93,71 +43,226 @@ class SchwabTask(Task):
         )
         df.rename(columns={"y": "fear_greed_index"}, inplace=True)
         df.sort_index(inplace=True)
-        df["fear_greed_index"] = df.fear_greed_index.fillna(method="ffill").astype(float)
+        df["fear_greed_index"] = df.fear_greed_index.astype(float).astype(int)
         df["previous_max_fear_greed_index"] = (
-            df["fear_greed_index"].rolling(window=self.historical_period, min_periods=self.historical_period).max()
+            df["fear_greed_index"].rolling(window=historical_periods, min_periods=historical_periods).max()
         )
-        return int(df.fear_greed_index.values[-1]), int(df.previous_max_fear_greed_index.values[-1])
+        df["previous_min_fear_greed_index"] = (
+            df["fear_greed_index"].rolling(window=historical_periods, min_periods=historical_periods).min()
+        )
 
-    def __get_product_rsi(self, product_id: str):
-        df = yf.Ticker(product_id).history(interval="1d", period="1y")
-        df.columns = map(str.lower, df.columns)
+        current_fear_greed_index = int(df.fear_greed_index.values[-1])
+        previous_max_fear_greed_index = int(df.previous_max_fear_greed_index.values[-1])
+        previous_min_fear_greed_index = int(df.previous_min_fear_greed_index.values[-1])
 
-        timestamps = [pd.to_datetime(x, utc=True).round(freq="D") for x in df.index.values]
-        timestamps_date_range = pd.date_range(start=timestamps[0], end=timestamps[-1], freq="D")
-        df = df.set_index(pd.DatetimeIndex(timestamps)).reindex(timestamps_date_range, method="ffill")
+        self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
+        self.logger.info(f"Previous max fear greed index ({historical_periods} days): {previous_max_fear_greed_index}")
+        self.logger.info(f"Previous min fear greed index ({historical_periods} days): {previous_min_fear_greed_index}")
 
-        RsiStrategy = ta.Strategy(name="RSI", ta=[{"kind": "rsi", "length": self.historical_period}])
-        df.ta.strategy(RsiStrategy)
-        df.sort_index(inplace=True)
+        return (current_fear_greed_index, previous_max_fear_greed_index, previous_min_fear_greed_index)
 
-        return int(df[f"RSI_{self.historical_period}"].values[-1])
+    def __get_df_options_chains(self, ticker: str):
+        data = []
+        options_chains_data = self.schwab_api.get_options_chains(ticker=ticker)
+        underlying_last = float(options_chains_data["UnderlyingData"]["Last"])
 
-    def __buy_product(self, product_id: str, available_cash: float):
-        buy_amount = int(available_cash / len(self.products_to_buy) / 10)
-        buy_amount = buy_amount if buy_amount >= self.min_buy_amount else self.min_buy_amount
-        buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
+        for expiration in options_chains_data["Expirations"]:
+            days_until_expiration = expiration["ExpirationGroup"]["DaysUntil"]
+            expiration_month_day = expiration["ExpirationGroup"]["MonthAndDay"].split(" ")
+            expiration_month = expiration_month_day[0]
+            expiration_day = expiration_month_day[1]
+            expiration_year = expiration["ExpirationGroup"]["Year"]
+            expiration_date = datetime.strptime(f"{expiration_month} {expiration_day} {expiration_year}", "%b %d %Y")
 
-        if buy_amount >= available_cash:
-            self.logger.info(f"Not enough funds to buy {product_id}")
+            for chain in expiration["Chains"]:
+                data_obj = {}
+                data_obj["OPTION_ID"] = chain["SymbolGroup"]
+                data_obj["UNDERLYING_LAST"] = underlying_last
+                data_obj["EXPIRE_DATE"] = expiration_date
+                data_obj["DTE"] = days_until_expiration
+
+                for leg in chain["Legs"]:
+                    data_obj["STRIKE"] = float(leg["Strk"])
+                    data_obj["STRIKE_DISTANCE"] = abs(data_obj["STRIKE"] - underlying_last)
+                    data_obj["STRIKE_DISTANCE_PCT"] = data_obj["STRIKE_DISTANCE"] / underlying_last
+                    leg_prefix = leg["OptionType"] + "_"
+                    data_obj[leg_prefix + "ID"] = leg["Sym"]
+                    data_obj[leg_prefix + "BID"] = float(leg["Bid"])
+                    data_obj[leg_prefix + "ASK"] = float(leg["Ask"])
+                    data_obj[leg_prefix + "VOLUME"] = int(leg["Vol"])
+
+                data.append(data_obj)
+
+        return pd.DataFrame(data=data)
+
+    def __get_owned_options(self):
+        positions = self.schwab_api.get_balance_positions()
+        owned_option_positions = [
+            x for x in positions["positionDetails"]["positions"] if x["securityType"] == "Option" and x["shares"] > 0
+        ]
+        owned_call_options = [x for x in owned_option_positions if x["symbolDescription"].startswith("CALL")]
+        owned_put_options = [x for x in owned_option_positions if x["symbolDescription"].startswith("PUT")]
+        return owned_call_options, owned_put_options
+
+    def __buy_product(self, product_id: str, asset_class: str, quantity: float = None, available_cash: float = None):
+        if quantity is None and available_cash is None:
+            raise Exception("Must include quantity or available cash to buy")
+        elif quantity is None:
+            buy_amount = int(available_cash / 10)
+            buy_amount = buy_amount if buy_amount >= self.min_buy_amount else self.min_buy_amount
+            buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
+
+            if buy_amount >= available_cash:
+                self.logger.info(f"Not enough funds to buy {product_id}")
+                return
+            else:
+                self.logger.info(f"Buying ${buy_amount:.2f} of {product_id}")
+                messages, success = self.schwab_api.buy_slice(
+                    tickers=[product_id],
+                    amount_usd=buy_amount,
+                    dry_run=(self.env == "local"),
+                )
         else:
-            self.logger.info(f"Buying ${buy_amount:.2f} of {product_id}")
-            messages, success = self.schwab_api.buy_slice_v2(
-                tickers=[product_id],
-                amount_usd=buy_amount,
+            self.logger.info(f"Buying {quantity} {'shares' if asset_class == 'Stock' else 'contracts'} of {product_id}")
+            messages, success = self.schwab_api.trade(
+                ticker=product_id,
+                asset_class=asset_class,
+                side="Buy",
+                qty=quantity,
                 dry_run=(self.env == "local"),
             )
 
-            if not success:
-                raise Exception(f"Error buying {product_id}: {str(messages)}")
+        if not success:
+            raise Exception(f"Error buying {product_id}: {str(messages)}")
 
-        return self.floor_value(available_cash - buy_amount, 2)
+    def __sell_product(self, product_id: str, asset_class: str, quantity: float):
+        self.logger.info(f"Selling {quantity} {'shares' if asset_class == 'Stock' else 'contracts'} of {product_id}")
 
-    def __sell_product(self, product_id: str, owned_product_quantity: float):
-        self.logger.info(f"Selling {owned_product_quantity} shares of {product_id}")
-        messages, success = self.schwab_api.trade_v2(
+        messages, success = self.schwab_api.trade(
             ticker=product_id,
-            qty=owned_product_quantity,
+            asset_class=asset_class,
             side="Sell",
+            qty=quantity,
             dry_run=(self.env == "local"),
         )
 
         if not success:
             raise Exception(f"Error selling {product_id}: {str(messages)}")
 
-    def create_orders(self):
-        account_info = self.schwab_api.get_account_info_v2()
-        available_cash = account_info["available_cash"]
+    def __get_available_cash(self):
+        return self.schwab_api.get_balance_positions()["balanceDetails"]["availableToTradeBalances"]["cash"]
 
-        owned_products = [x["symbol"] for x in account_info["positions"]]
-        self.logger.info(f"Owned products: {owned_products}")
+    def create_options_orders(self):
+        ticker = "QQQ"
+        self.logger.info(f"Trading options for {ticker}")
 
-        for position in account_info["positions"]:
-            if position["symbol"] not in self.products_to_buy:
-                self.__sell_product(product_id=position["symbol"], owned_product_quantity=position["quantity"])
+        self.schwab_api.get_account_info()
+        transaction_history = self.schwab_api.get_transaction_history()
 
-        shuffled_product_ids = self.products_to_buy
-        random.shuffle(shuffled_product_ids)
+        (
+            current_fear_greed_index,
+            previous_max_fear_greed_index,
+            previous_min_fear_greed_index,
+        ) = self.__get_fear_greed_index_data()
 
-        for product_id in shuffled_product_ids:
-            available_cash = self.__buy_product(product_id=product_id, available_cash=available_cash)
+        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 1
+        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 1
+
+        self.logger.info(f"Buy calls: {good_call_buy}")
+        self.logger.info(f"Buy puts: {good_put_buy}")
+
+        df_options_chains = self.__get_df_options_chains(ticker=ticker)
+        owned_call_options, owned_put_options = self.__get_owned_options()
+
+        min_dte_buy = 14
+        min_dte_sell = int(min_dte_buy / 2)
+        min_volume = 100
+        max_strike_distance_pct = 0.05
+
+        asset_class = "Option"
+        buy_sell_quantity = 1
+
+        def get_sell_dte(owned_option, current_dte, expire_date, transaction_history):
+            purchase_dte = (
+                expire_date
+                - datetime.strptime(
+                    next(
+                        transaction
+                        for transaction in transaction_history["brokerageTransactions"]
+                        if transaction["symbol"] == owned_option["displaySymbol"]
+                    )["transactionDate"],
+                    "%m/%d/%Y",
+                )
+            ).days
+            return current_dte < min_dte_sell or (purchase_dte - current_dte) > min_dte_sell
+
+        for index, row in df_options_chains.iterrows():
+            owned_call_option = next((option for option in owned_call_options if option["symbol"] == row.C_ID), None)
+            owned_put_option = next((option for option in owned_put_options if option["symbol"] == row.P_ID), None)
+
+            if owned_call_option is not None:
+                sell_dte = get_sell_dte(
+                    owned_option=owned_call_option,
+                    current_dte=row.DTE,
+                    expire_date=row.EXPIRE_DATE,
+                    transaction_history=transaction_history,
+                )
+
+                if not good_call_buy or sell_dte:
+                    self.__sell_product(
+                        product_id=row.C_ID,
+                        asset_class=asset_class,
+                        quantity=buy_sell_quantity,
+                    )
+            elif owned_put_option is not None:
+                sell_dte = get_sell_dte(
+                    owned_option=owned_put_option,
+                    current_dte=row.DTE,
+                    expire_date=row.EXPIRE_DATE,
+                    transaction_history=transaction_history,
+                )
+
+                if not good_put_buy or sell_dte:
+                    self.__sell_product(
+                        product_id=row.P_ID,
+                        asset_class=asset_class,
+                        quantity=buy_sell_quantity,
+                    )
+
+        time.sleep(10)
+
+        available_cash = self.__get_available_cash()
+        df_options_chains = self.__get_df_options_chains(ticker=ticker)
+        owned_call_options, owned_put_options = self.__get_owned_options()
+
+        for index, row in df_options_chains.iterrows():
+            call_ask_price = row.C_ASK * 100
+            put_ask_price = row.P_ASK * 100
+
+            if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT < max_strike_distance_pct:
+                if (
+                    good_call_buy
+                    and row.C_VOLUME > min_volume
+                    and available_cash >= call_ask_price
+                    and self.max_buy_amount >= call_ask_price
+                    and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
+                ):
+                    self.__buy_product(
+                        product_id=row.C_ID,
+                        asset_class=asset_class,
+                        quantity=buy_sell_quantity,
+                        available_cash=available_cash,
+                    )
+                elif (
+                    good_put_buy
+                    and row.P_VOLUME > min_volume
+                    and available_cash >= put_ask_price
+                    and self.max_buy_amount >= put_ask_price
+                    and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
+                ):
+                    self.__buy_product(
+                        product_id=row.C_ID,
+                        asset_class=asset_class,
+                        quantity=buy_sell_quantity,
+                        available_cash=available_cash,
+                    )
