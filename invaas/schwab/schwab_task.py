@@ -19,7 +19,7 @@ class SchwabTask(Task):
         self.schwab_api = Schwab(schwab_account_id=self.get_secret("SCHWAB-ACCOUNT-ID"))
 
         self.min_buy_amount = 10
-        self.max_buy_amount = 1000
+        self.max_buy_amount = 200
         self.logger.info(f"Min buy amount: ${self.min_buy_amount}")
         self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
 
@@ -55,9 +55,10 @@ class SchwabTask(Task):
         previous_max_fear_greed_index = int(df.previous_max_fear_greed_index.values[-1])
         previous_min_fear_greed_index = int(df.previous_min_fear_greed_index.values[-1])
 
+        self.logger.info(f"Historical period: {historical_periods} days")
         self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
-        self.logger.info(f"Previous max fear greed index ({historical_periods} days): {previous_max_fear_greed_index}")
-        self.logger.info(f"Previous min fear greed index ({historical_periods} days): {previous_min_fear_greed_index}")
+        self.logger.info(f"Previous max fear greed index: {previous_max_fear_greed_index}")
+        self.logger.info(f"Previous min fear greed index: {previous_min_fear_greed_index}")
 
         return (current_fear_greed_index, previous_max_fear_greed_index, previous_min_fear_greed_index)
 
@@ -116,14 +117,12 @@ class SchwabTask(Task):
                 self.logger.info(f"Not enough funds to buy {product_id}")
                 return
             else:
-                self.logger.info(f"Buying ${buy_amount:.2f} of {product_id}")
                 messages, success = self.schwab_api.buy_slice(
                     tickers=[product_id],
                     amount_usd=buy_amount,
                     dry_run=(self.env == "local"),
                 )
         else:
-            self.logger.info(f"Buying {quantity} {'shares' if asset_class == 'Stock' else 'contracts'} of {product_id}")
             messages, success = self.schwab_api.trade(
                 ticker=product_id,
                 asset_class=asset_class,
@@ -136,8 +135,6 @@ class SchwabTask(Task):
             raise Exception(f"Error buying {product_id}: {str(messages)}")
 
     def __sell_product(self, product_id: str, asset_class: str, quantity: float):
-        self.logger.info(f"Selling {quantity} {'shares' if asset_class == 'Stock' else 'contracts'} of {product_id}")
-
         messages, success = self.schwab_api.trade(
             ticker=product_id,
             asset_class=asset_class,
@@ -153,7 +150,7 @@ class SchwabTask(Task):
         return self.schwab_api.get_balance_positions()["balanceDetails"]["availableToTradeBalances"]["cash"]
 
     def create_options_orders(self):
-        ticker = "QQQ"
+        ticker = "SPY"
         self.logger.info(f"Trading options for {ticker}")
 
         self.schwab_api.get_account_info()
@@ -197,6 +194,8 @@ class SchwabTask(Task):
             return current_dte < min_dte_sell or (purchase_dte - current_dte) > min_dte_sell
 
         for index, row in df_options_chains.iterrows():
+            call_bid_price = row.C_BID * 100
+            put_bid_price = row.P_BID * 100
             owned_call_option = next((option for option in owned_call_options if option["symbol"] == row.C_ID), None)
             owned_put_option = next((option for option in owned_put_options if option["symbol"] == row.P_ID), None)
 
@@ -209,6 +208,7 @@ class SchwabTask(Task):
                 )
 
                 if not good_call_buy or sell_dte:
+                    self.logger.info(f"Selling {buy_sell_quantity} contracts of '{row.C_ID}' for ${call_bid_price:.2f}")
                     self.__sell_product(
                         product_id=row.C_ID,
                         asset_class=asset_class,
@@ -223,6 +223,7 @@ class SchwabTask(Task):
                 )
 
                 if not good_put_buy or sell_dte:
+                    self.logger.info(f"Selling {buy_sell_quantity} contracts of '{row.P_ID}' for ${put_bid_price:.2f}")
                     self.__sell_product(
                         product_id=row.P_ID,
                         asset_class=asset_class,
@@ -232,12 +233,15 @@ class SchwabTask(Task):
         time.sleep(10)
 
         available_cash = self.__get_available_cash()
+        self.logger.info(f"Available cash: {available_cash}")
+
         df_options_chains = self.__get_df_options_chains(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
         for index, row in df_options_chains.iterrows():
             call_ask_price = row.C_ASK * 100
             put_ask_price = row.P_ASK * 100
+            current_max_buy_amount = available_cash / 10
 
             if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT < max_strike_distance_pct:
                 if (
@@ -245,24 +249,30 @@ class SchwabTask(Task):
                     and row.C_VOLUME > min_volume
                     and available_cash >= call_ask_price
                     and self.max_buy_amount >= call_ask_price
+                    and current_max_buy_amount >= call_ask_price
                     and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
                 ):
+                    self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}")
                     self.__buy_product(
                         product_id=row.C_ID,
                         asset_class=asset_class,
                         quantity=buy_sell_quantity,
                         available_cash=available_cash,
                     )
+                    available_cash -= call_ask_price
                 elif (
                     good_put_buy
                     and row.P_VOLUME > min_volume
                     and available_cash >= put_ask_price
                     and self.max_buy_amount >= put_ask_price
+                    and current_max_buy_amount >= put_ask_price
                     and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
                 ):
+                    self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}")
                     self.__buy_product(
                         product_id=row.C_ID,
                         asset_class=asset_class,
                         quantity=buy_sell_quantity,
                         available_cash=available_cash,
                     )
+                    available_cash -= put_ask_price
