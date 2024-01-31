@@ -2,6 +2,51 @@
 
 
 
+## v1.4.0 (2024-01-31)
+
+### Chore
+
+* chore: update test notebooks ([`8c45ef2`](https://github.com/daneisburgh/invaas/commit/8c45ef2132134011dddc952c8879490c4790f2a2))
+
+* chore: update test notebooks ([`ce499fa`](https://github.com/daneisburgh/invaas/commit/ce499fad2b27f215ce523abe4fcd5c348af75c60))
+
+* chore: update test notebooks ([`d0e5fb3`](https://github.com/daneisburgh/invaas/commit/d0e5fb3b57f15b26677a5ac7c35a5dd8183d52c1))
+
+* chore: update test notebooks ([`549e408`](https://github.com/daneisburgh/invaas/commit/549e408ac50ed7ea9d57f046d9f40c73d525e1ba))
+
+* chore: update test notebooks ([`2ee9e72`](https://github.com/daneisburgh/invaas/commit/2ee9e7260799b51a00dec41e91b686b98986f293))
+
+* chore: format files ([`5edf23c`](https://github.com/daneisburgh/invaas/commit/5edf23c8c06151f401e42f86a3d8089322468f78))
+
+* chore: update options test notebooks ([`39410a8`](https://github.com/daneisburgh/invaas/commit/39410a8a975868f9de2b47e1c9d68020230b30fe))
+
+* chore: update test notebooks ([`ab77633`](https://github.com/daneisburgh/invaas/commit/ab77633dd831d3d4c3abd05133498fa5d8c06e66))
+
+* chore: update options test notebooks ([`6825480`](https://github.com/daneisburgh/invaas/commit/68254807e1ff37b58060c331fc387ab477825dcf))
+
+### Feature
+
+* feat: update schwab task methods and options buy logic ([`f543309`](https://github.com/daneisburgh/invaas/commit/f543309f9dbbbe75ab50cdc11ee437062b4bf7dc))
+
+* feat: add initial option trading logic to schwab task ([`4e2a135`](https://github.com/daneisburgh/invaas/commit/4e2a1356e6613175968c1e60a47448fef1b4a305))
+
+* feat: update schwab client and add requests ([`8d5a7b7`](https://github.com/daneisburgh/invaas/commit/8d5a7b7b61e94a7b2e9804169ea5b39cf0660b6d))
+
+* feat: update trade to handle options and add get balance method ([`f040aa9`](https://github.com/daneisburgh/invaas/commit/f040aa97f3b7d1e6c88db02dc4f1439c98d4fe5d))
+
+* feat: add balance positions url ([`1652b0c`](https://github.com/daneisburgh/invaas/commit/1652b0c310806b70248426289e5aef0d7ea011ea))
+
+### Style
+
+* style: format files ([`b331b6f`](https://github.com/daneisburgh/invaas/commit/b331b6f44f64dd4c51615523feba9a1cc9029657))
+
+* style: format files ([`9b0e07d`](https://github.com/daneisburgh/invaas/commit/9b0e07d2c6e8f58d535ff81015d1de6788e12604))
+
+### Unknown
+
+* update schwab workflow schedule ([`383d0e9`](https://github.com/daneisburgh/invaas/commit/383d0e9c08b3de950088dce834ac00ba5a0d726c))
+
+
 ## v1.3.2 (2024-01-26)
 
 ### Chore
