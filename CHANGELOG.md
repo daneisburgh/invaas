@@ -2,6 +2,13 @@
 
 
 
+## v1.4.1 (2024-02-01)
+
+### Fix
+
+* fix: update get owned options method to handle no positions ([`32adae4`](https://github.com/daneisburgh/invaas/commit/32adae4dfaaa177be3d692250230b0b7b4e68ddc))
+
+
 ## v1.4.0 (2024-01-31)
 
 ### Chore
