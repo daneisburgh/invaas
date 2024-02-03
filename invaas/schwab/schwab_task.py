@@ -100,10 +100,8 @@ class SchwabTask(Task):
         return df
 
     def __get_owned_options(self):
-        positions = self.schwab_api.get_balance_positions()
-        owned_option_positions = [
-            x for x in positions["positionDetails"]["positions"] if x["securityType"] == "Option" and x["shares"] > 0
-        ]
+        positions = self.schwab_api.get_balance_positions()["positionDetails"].get("positions", [])
+        owned_option_positions = [x for x in positions if x["securityType"] == "Option" and x["shares"] > 0]
         owned_call_options = [x for x in owned_option_positions if x["symbolDescription"].startswith("CALL")]
         owned_put_options = [x for x in owned_option_positions if x["symbolDescription"].startswith("PUT")]
         return owned_call_options, owned_put_options
