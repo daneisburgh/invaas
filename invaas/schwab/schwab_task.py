@@ -62,7 +62,7 @@ class SchwabTask(Task):
 
         return (current_fear_greed_index, previous_max_fear_greed_index, previous_min_fear_greed_index)
 
-    def __get_df_options_chains(self, ticker: str):
+    def __get_df_options_chain(self, ticker: str):
         data = []
         options_chains_data = self.schwab_api.get_options_chains(ticker=ticker)
         underlying_last = float(options_chains_data["UnderlyingData"]["Last"])
@@ -94,7 +94,10 @@ class SchwabTask(Task):
 
                 data.append(data_obj)
 
-        return pd.DataFrame(data=data)
+        df = pd.DataFrame(data=data)
+        df.sort_values(by=["EXPIRE_DATE", "DTE", "STRIKE_DISTANCE_PCT"], ascending=True, inplace=True)
+
+        return df
 
     def __get_owned_options(self):
         positions = self.schwab_api.get_balance_positions()
@@ -168,7 +171,7 @@ class SchwabTask(Task):
         self.logger.info(f"Buy calls: {good_call_buy}")
         self.logger.info(f"Buy puts: {good_put_buy}")
 
-        df_options_chains = self.__get_df_options_chains(ticker=ticker)
+        df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
         min_dte_buy = 14
@@ -193,7 +196,7 @@ class SchwabTask(Task):
             ).days
             return current_dte < min_dte_sell or (purchase_dte - current_dte) > min_dte_sell
 
-        for index, row in df_options_chains.iterrows():
+        for index, row in df_options_chain.iterrows():
             call_bid_price = row.C_BID * 100
             put_bid_price = row.P_BID * 100
             owned_call_option = next((option for option in owned_call_options if option["symbol"] == row.C_ID), None)
@@ -235,10 +238,13 @@ class SchwabTask(Task):
         available_cash = self.__get_available_cash()
         self.logger.info(f"Available cash: {available_cash}")
 
-        df_options_chains = self.__get_df_options_chains(ticker=ticker)
+        df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
-        for index, row in df_options_chains.iterrows():
+        max_bought_options = 25
+        bought_options = 0
+
+        for index, row in df_options_chain.iterrows():
             call_ask_price = row.C_ASK * 100
             put_ask_price = row.P_ASK * 100
             current_max_buy_amount = available_cash / 10
@@ -251,6 +257,7 @@ class SchwabTask(Task):
                     and self.max_buy_amount >= call_ask_price
                     and current_max_buy_amount >= call_ask_price
                     and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
+                    and bought_options < max_bought_options
                 ):
                     self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}")
                     self.__buy_product(
@@ -260,6 +267,7 @@ class SchwabTask(Task):
                         available_cash=available_cash,
                     )
                     available_cash -= call_ask_price
+                    bought_options += 1
                 elif (
                     good_put_buy
                     and row.P_VOLUME > min_volume
@@ -267,6 +275,7 @@ class SchwabTask(Task):
                     and self.max_buy_amount >= put_ask_price
                     and current_max_buy_amount >= put_ask_price
                     and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
+                    and bought_options < max_bought_options
                 ):
                     self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}")
                     self.__buy_product(
@@ -276,3 +285,4 @@ class SchwabTask(Task):
                         available_cash=available_cash,
                     )
                     available_cash -= put_ask_price
+                    bought_options += 1
