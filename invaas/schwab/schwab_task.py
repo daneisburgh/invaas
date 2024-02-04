@@ -277,7 +277,7 @@ class SchwabTask(Task):
                 ):
                     self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}")
                     self.__buy_product(
-                        product_id=row.C_ID,
+                        product_id=row.P_ID,
                         asset_class=asset_class,
                         quantity=buy_sell_quantity,
                         available_cash=available_cash,
