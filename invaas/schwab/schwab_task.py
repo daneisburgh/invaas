@@ -33,6 +33,9 @@ class SchwabTask(Task):
         await self.schwab_api.setup()
         await self.schwab_api.login(username=username, password=password)
         await self.schwab_api.close_api_session()
+        self.logger.info(f"Net worth: {self.__get_net_worth()}")
+        self.logger.info(f"Available cash to buy stocks: {self.__get_available_cash_to_buy_stocks()}")
+        self.logger.info(f"Available cash to buy options: {self.__get_available_cash_to_buy_options()}")
 
     def __get_fear_greed_index_data(self):
         historical_periods = 14
@@ -147,8 +150,14 @@ class SchwabTask(Task):
         if not success:
             raise Exception(f"Error selling {product_id}: {str(messages)}")
 
-    def __get_available_cash(self):
+    def __get_net_worth(self):
+        return self.schwab_api.get_balance_positions()["balanceDetails"]["availableToTradeBalances"]["netWorth"]
+
+    def __get_available_cash_to_buy_stocks(self):
         return self.schwab_api.get_balance_positions()["balanceDetails"]["availableToTradeBalances"]["cash"]
+
+    def __get_available_cash_to_buy_options(self):
+        return self.schwab_api.get_balance_positions()["balanceDetails"]["optionsBalances"]["longOptions"]
 
     def create_options_orders(self):
         ticker = "SPY"
@@ -233,9 +242,7 @@ class SchwabTask(Task):
 
         time.sleep(10)
 
-        available_cash = self.__get_available_cash()
-        self.logger.info(f"Available cash: {available_cash}")
-
+        available_cash = self.__get_available_cash_to_buy_options()
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
