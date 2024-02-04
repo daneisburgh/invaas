@@ -144,13 +144,13 @@ class Schwab(SessionManager):
     def buy_slice(
         self,
         tickers,
-        amount_usd,
+        price_usd,
         dry_run=True,
         valid_return_codes={20, 25},
     ):
         """
         tickers (List[str]) - The stock symbols you want to trade.
-        amount_usd (int) - The total dollar amount to buy (min $5/stock).
+        price_usd (int) - The total dollar price to buy (min $5/stock).
 
         Returns messages (list of strings), is_success (boolean)
         """
@@ -173,7 +173,7 @@ class Schwab(SessionManager):
 
         data = {
             "AccountNo": self.schwab_account_id,
-            "TotalAmount": amount_usd,
+            "TotalAmount": price_usd,
             "IsAffirmed": True,
             "OrderBundleId": 0,
             "Stocks": stocks,

@@ -18,10 +18,10 @@ class SchwabTask(Task):
         super().__init__(env=env)
         self.schwab_api = Schwab(schwab_account_id=self.get_secret("SCHWAB-ACCOUNT-ID"))
 
-        self.min_buy_amount = 10
-        self.max_buy_amount = 200
-        self.logger.info(f"Min buy amount: ${self.min_buy_amount}")
-        self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
+        self.min_buy_price = 10
+        self.max_buy_price = 200
+        self.logger.info(f"Min buy price: ${self.min_buy_price}")
+        self.logger.info(f"Max buy price: ${self.max_buy_price}")
 
     async def setup_api(self):
         self.logger.info("Logging in to Schwab")
@@ -113,17 +113,17 @@ class SchwabTask(Task):
         if quantity is None and available_cash is None:
             raise Exception("Must include quantity or available cash to buy")
         elif quantity is None:
-            buy_amount = int(available_cash / 10)
-            buy_amount = buy_amount if buy_amount >= self.min_buy_amount else self.min_buy_amount
-            buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
+            buy_price = int(available_cash / 10)
+            buy_price = buy_price if buy_price >= self.min_buy_price else self.min_buy_price
+            buy_price = buy_price if buy_price <= self.max_buy_price else self.max_buy_price
 
-            if buy_amount >= available_cash:
+            if buy_price >= available_cash:
                 self.logger.info(f"Not enough funds to buy {product_id}")
                 return
             else:
                 messages, success = self.schwab_api.buy_slice(
                     tickers=[product_id],
-                    amount_usd=buy_amount,
+                    price_usd=buy_price,
                     dry_run=(self.env == "local"),
                 )
         else:
@@ -246,23 +246,22 @@ class SchwabTask(Task):
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
-        max_bought_options = 25
         bought_options = 0
+        max_buy_amount = 25
 
         for index, row in df_options_chain.iterrows():
             call_ask_price = row.C_ASK * 100
             put_ask_price = row.P_ASK * 100
-            current_max_buy_amount = available_cash / 10
+            current_max_buy_price = available_cash / 10
 
             if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT < max_strike_distance_pct:
                 if (
                     good_call_buy
                     and row.C_VOLUME > min_volume
-                    and available_cash >= call_ask_price
-                    and self.max_buy_amount >= call_ask_price
-                    and current_max_buy_amount >= call_ask_price
+                    and self.max_buy_price >= call_ask_price
+                    and current_max_buy_price >= call_ask_price
                     and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
-                    and bought_options < max_bought_options
+                    and bought_options < max_buy_amount
                 ):
                     self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}")
                     self.__buy_product(
@@ -276,11 +275,10 @@ class SchwabTask(Task):
                 elif (
                     good_put_buy
                     and row.P_VOLUME > min_volume
-                    and available_cash >= put_ask_price
-                    and self.max_buy_amount >= put_ask_price
-                    and current_max_buy_amount >= put_ask_price
+                    and self.max_buy_price >= put_ask_price
+                    and current_max_buy_price >= put_ask_price
                     and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
-                    and bought_options < max_bought_options
+                    and bought_options < max_buy_amount
                 ):
                     self.logger.info(f"Buying {buy_sell_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}")
                     self.__buy_product(
