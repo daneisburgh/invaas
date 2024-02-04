@@ -2,6 +2,33 @@
 
 
 
+## v1.5.0 (2024-02-04)
+
+### Chore
+
+* chore: update test notebooks ([`c94989f`](https://github.com/daneisburgh/invaas/commit/c94989fd2299c9cbe6e0590562b3205f5ba6c0e6))
+
+* chore: update option historical test notebook ([`905de1a`](https://github.com/daneisburgh/invaas/commit/905de1a9bb76703a165623b230ee33ef55ac4921))
+
+### Feature
+
+* feat: add methods to get schwab net worth and cash to buy stocks and options ([`223bc08`](https://github.com/daneisburgh/invaas/commit/223bc08b627e6927b7475cd94dea60ba9f3c9fe5))
+
+### Fix
+
+* fix: update buy put option product id ([`cf56534`](https://github.com/daneisburgh/invaas/commit/cf56534a146e2e208fcde3be8f76d2fbf4c3e73c))
+
+* fix: sort options chain and set max bought options ([`ceaf753`](https://github.com/daneisburgh/invaas/commit/ceaf753ee05a698117649dbd918722fab2f9f807))
+
+### Refactor
+
+* refactor: update schwab product price variable names ([`0c338ee`](https://github.com/daneisburgh/invaas/commit/0c338eeb4a0d1edfd2198d20e438f3b588a2e677))
+
+### Unknown
+
+* Merge branch &#39;main&#39; into develop ([`1159db1`](https://github.com/daneisburgh/invaas/commit/1159db12b3419e4ee12e5e1573cda7c9f34b9786))
+
+
 ## v1.4.1 (2024-02-01)
 
 ### Fix
