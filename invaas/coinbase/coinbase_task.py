@@ -26,7 +26,7 @@ class CoinbaseTask(Task):
         self.logger.info(f"Minimum fear greed index to buy: {self.min_fear_greed_index_to_buy}")
         self.logger.info(f"Current fear greed index: {self.current_fear_greed_index}")
 
-        self.min_buy_amount = 2
+        self.min_buy_amount = 10
         self.max_buy_amount = 100
         self.logger.info(f"Min buy amount: ${self.min_buy_amount}")
         self.logger.info(f"Max buy amount: ${self.max_buy_amount}")
@@ -40,7 +40,7 @@ class CoinbaseTask(Task):
         return product_id.split("-")[0]
 
     def __buy_product(self, product_id: str, available_cash: float):
-        buy_amount = self.floor_value(value=(available_cash / len(self.product_ids) / 10), precision=2)
+        buy_amount = self.floor_value(value=(available_cash / len(self.product_ids)), precision=2)
         buy_amount = buy_amount if buy_amount >= self.min_buy_amount else self.min_buy_amount
         buy_amount = buy_amount if buy_amount <= self.max_buy_amount else self.max_buy_amount
         self.logger.info(f"Buy amount: ${buy_amount:.2f}")
