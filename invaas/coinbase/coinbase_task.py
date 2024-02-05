@@ -18,7 +18,7 @@ class CoinbaseTask(Task):
 
         self.cb_client = CoinbaseClient(self.get_secret("COINBASE-API-KEY"), self.get_secret("COINBASE-API-SECRET"))
 
-        self.product_ids = ["BTC-USD", "ETH-USD", "SOL-USD", "XRP-USD", "DOT-USD"]
+        self.product_ids = ["BTC-USDC", "ETH-USDC", "SOL-USDC", "XRP-USDC", "DOT-USDC"]
         self.logger.info(f"Products to trade: {str(self.product_ids)}")
 
         self.min_fear_greed_index_to_buy = 60
@@ -61,11 +61,11 @@ class CoinbaseTask(Task):
     def __sell_product(self, product_id: str, owned_product: float):
         crypto_id = self.__get_crypto_id(product_id)
 
-        if product_id in ["BTC-USD", "ETH-USD"]:
+        if product_id in ["BTC-USDC", "ETH-USDC"]:
             precision = 6
-        elif product_id in ["DOT-USD", "SOL-USD", "XRP-USD"]:
+        elif product_id in ["DOT-USDC", "SOL-USDC", "XRP-USDC"]:
             precision = 3
-        elif product_id in ["ADA-USD", "ATOM-USD", "AVAX-USD", "LINK-USD"]:
+        elif product_id in ["ADA-USDC", "ATOM-USDC", "AVAX-USDC", "LINK-USDC"]:
             precision = 2
 
         sell_amount = self.floor_value(value=owned_product, precision=precision)
@@ -95,7 +95,7 @@ class CoinbaseTask(Task):
             owned_product = self.__get_available_balance(f"{crypto_id} Wallet")
             self.logger.info(f"Owned {crypto_id}: {owned_product:.10f}")
 
-            available_cash = self.__get_available_balance("Cash (USD)")
+            available_cash = self.__get_available_balance("USDC Wallet")
             self.logger.info(f"Available cash: ${available_cash:.2f}")
 
             order_side = (
