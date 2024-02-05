@@ -52,6 +52,12 @@ class Schwab(SessionManager):
         elif side == "Sell" and asset_class == "Stock":
             buy_sell_code = "50"
             primary_security_type = 46
+        elif side == "Buy" and asset_class == "Mutual Fund":
+            buy_sell_code = "49"
+            primary_security_type = 49
+        elif side == "Sell" and asset_class == "Mutual Fund":
+            buy_sell_code = "50"
+            primary_security_type = 49
         elif side == "Buy" and asset_class == "Option":
             buy_sell_code = "201"
             primary_security_type = 48
@@ -166,6 +172,7 @@ class Schwab(SessionManager):
                     "IsAffirmed": True,
                     "IsSelected": True,
                     "ReinvestDividend": True,
+                    "ReinvestCapitalGains": True,
                     "OrderId": 0,
                     "SchwabOrderId": 0,
                 }
