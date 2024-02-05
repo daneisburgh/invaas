@@ -2,6 +2,19 @@
 
 
 
+## v1.6.0 (2024-02-05)
+
+### Chore
+
+* chore: update crypto etf test notebook ([`135de4d`](https://github.com/daneisburgh/invaas/commit/135de4dd8c66994a98cb8b39ba4c0b81d76c9b8b))
+
+### Feature
+
+* feat: increase coinbase min buy amount ([`f121151`](https://github.com/daneisburgh/invaas/commit/f121151e1c142f73460ec78a21f84e7dbd70e809))
+
+* feat: update coinbase to use usdc wallet ([`1009680`](https://github.com/daneisburgh/invaas/commit/10096801656dc294805b5cb11f0c5063b11d69dd))
+
+
 ## v1.5.0 (2024-02-04)
 
 ### Chore
