@@ -54,9 +54,9 @@ class SchwabTask(Task):
             df["fear_greed_index"].rolling(window=historical_periods, min_periods=historical_periods).min()
         )
 
-        current_fear_greed_index = int(df.fear_greed_index.values[-1])
-        previous_max_fear_greed_index = int(df.previous_max_fear_greed_index.values[-1])
-        previous_min_fear_greed_index = int(df.previous_min_fear_greed_index.values[-1])
+        current_fear_greed_index = round(df.fear_greed_index.values[-1])
+        previous_max_fear_greed_index = round(df.previous_max_fear_greed_index.values[-1])
+        previous_min_fear_greed_index = round(df.previous_min_fear_greed_index.values[-1])
 
         self.logger.info(f"Historical period: {historical_periods} days")
         self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
@@ -93,7 +93,7 @@ class SchwabTask(Task):
                     data_obj[leg_prefix + "ID"] = leg["Sym"]
                     data_obj[leg_prefix + "BID"] = float(leg["Bid"])
                     data_obj[leg_prefix + "ASK"] = float(leg["Ask"])
-                    data_obj[leg_prefix + "VOLUME"] = int(leg["Vol"])
+                    data_obj[leg_prefix + "VOLUME"] = round(leg["Vol"])
 
                 data.append(data_obj)
 
