@@ -93,7 +93,7 @@ class SchwabTask(Task):
                     data_obj[leg_prefix + "ID"] = leg["Sym"]
                     data_obj[leg_prefix + "BID"] = float(leg["Bid"])
                     data_obj[leg_prefix + "ASK"] = float(leg["Ask"])
-                    data_obj[leg_prefix + "VOLUME"] = round(leg["Vol"])
+                    data_obj[leg_prefix + "VOLUME"] = int(leg["Vol"])
 
                 data.append(data_obj)
 
@@ -247,7 +247,7 @@ class SchwabTask(Task):
         owned_call_options, owned_put_options = self.__get_owned_options()
 
         bought_options = 0
-        max_buy_amount = 25
+        max_buy_amount = 10
 
         for index, row in df_options_chain.iterrows():
             call_ask_price = row.C_ASK * 100
