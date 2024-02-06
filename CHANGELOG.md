@@ -2,6 +2,21 @@
 
 
 
+## v1.7.2 (2024-02-06)
+
+### Build
+
+* build: update schwab workflow schedule ([`162adee`](https://github.com/daneisburgh/invaas/commit/162adee349294a4fbcec4f6a300de25287a16642))
+
+### Chore
+
+* chore: update options test notebook ([`68734b4`](https://github.com/daneisburgh/invaas/commit/68734b4327aaccf824e45339a72a0e3cfc1709e5))
+
+### Fix
+
+* fix: update schwab task options chain volume integer conversion ([`7ca7afd`](https://github.com/daneisburgh/invaas/commit/7ca7afd422e4ef7b82c6a02586fd1eb00c1d379b))
+
+
 ## v1.7.1 (2024-02-06)
 
 ### Chore
