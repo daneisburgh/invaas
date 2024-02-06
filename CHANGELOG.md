@@ -2,6 +2,21 @@
 
 
 
+## v1.7.0 (2024-02-06)
+
+### Chore
+
+* chore: update options test notebook ([`35b01a1`](https://github.com/daneisburgh/invaas/commit/35b01a129ee9259863e47c045cb2e93d8aac48da))
+
+### Feature
+
+* feat: add initial conditional to trade schwab mutual fund assets ([`fd506ce`](https://github.com/daneisburgh/invaas/commit/fd506ce10fac2e0517de22d82ee59d65b5016351))
+
+### Fix
+
+* fix: update fear and greed index rounding ([`5f5b506`](https://github.com/daneisburgh/invaas/commit/5f5b506681038ef6edf5c8e81d9376f69446822f))
+
+
 ## v1.6.0 (2024-02-05)
 
 ### Chore
