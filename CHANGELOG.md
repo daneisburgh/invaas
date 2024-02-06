@@ -2,6 +2,25 @@
 
 
 
+## v1.7.1 (2024-02-06)
+
+### Chore
+
+* chore: update options test notebook ([`e71fe6e`](https://github.com/daneisburgh/invaas/commit/e71fe6e08144d5c4e5b5f7343fe13bc6e95daf31))
+
+### Ci
+
+* ci: update release workflow ([`e0d0930`](https://github.com/daneisburgh/invaas/commit/e0d0930dbb23373c80158832d51193b638bad9f3))
+
+### Fix
+
+* fix: update schwab fear greed index rounding ([`1c081f4`](https://github.com/daneisburgh/invaas/commit/1c081f4986492fbf0b62e533a5b174ade7644cc9))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`385d391`](https://github.com/daneisburgh/invaas/commit/385d39130f8cc9249eeae96802d57e227ba009b8))
+
+
 ## v1.7.0 (2024-02-06)
 
 ### Chore
