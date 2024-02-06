@@ -46,7 +46,7 @@ class SchwabTask(Task):
         )
         df.rename(columns={"y": "fear_greed_index"}, inplace=True)
         df.sort_index(inplace=True)
-        df["fear_greed_index"] = df.fear_greed_index.astype(float).astype(int)
+        df["fear_greed_index"] = df.fear_greed_index.astype(float).round()
         df["previous_max_fear_greed_index"] = (
             df["fear_greed_index"].rolling(window=historical_periods, min_periods=historical_periods).max()
         )
