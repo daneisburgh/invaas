@@ -2,6 +2,13 @@
 
 
 
+## v1.7.3 (2024-02-07)
+
+### Fix
+
+* fix: update crypto fear greed index rounding ([`a5e6c59`](https://github.com/daneisburgh/invaas/commit/a5e6c59d663866c45ca4b843372b15ff6c4a60ee))
+
+
 ## v1.7.2 (2024-02-06)
 
 ### Build
