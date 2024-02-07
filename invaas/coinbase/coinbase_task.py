@@ -23,7 +23,7 @@ class CoinbaseTask(Task):
 
         self.min_fear_greed_index_to_buy = 60
         self.current_fear_greed_index = round(
-            requests.get("https://api.alternative.me/fng/").json()["data"][0]["value"]
+            float(requests.get("https://api.alternative.me/fng/").json()["data"][0]["value"])
         )
         self.logger.info(f"Minimum fear greed index to buy: {self.min_fear_greed_index_to_buy}")
         self.logger.info(f"Current fear greed index: {self.current_fear_greed_index}")
