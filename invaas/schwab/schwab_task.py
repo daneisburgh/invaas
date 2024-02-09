@@ -243,6 +243,8 @@ class SchwabTask(Task):
         time.sleep(10)
 
         available_cash = self.__get_available_cash_to_buy_options()
+        self.logger.info(f"Available cash to buy options: {available_cash}")
+
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
