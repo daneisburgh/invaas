@@ -2,6 +2,21 @@
 
 
 
+## v1.8.0 (2024-02-12)
+
+### Chore
+
+* chore: update options historical test notebook ([`72fc8b0`](https://github.com/daneisburgh/invaas/commit/72fc8b0d8312155df555fda6143216a8c2985f6d))
+
+### Feature
+
+* feat: update option trading logic in schwab task ([`130203d`](https://github.com/daneisburgh/invaas/commit/130203d204482f92d7ecc26495cb6b93ec703503))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`370f95d`](https://github.com/daneisburgh/invaas/commit/370f95d5bb7555a358be1a50d5e7e3c11dfe9d8f))
+
+
 ## v1.7.4 (2024-02-11)
 
 ### Chore
