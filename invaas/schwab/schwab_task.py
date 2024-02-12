@@ -246,7 +246,7 @@ class SchwabTask(Task):
         max_buy_amount = 10
         buy_contracts_quantity = 1
         self.logger.info(f"Max unique options to buy: {max_buy_amount}")
-        self.logger.info(f"Total contracts to buy: {buy_contracts_quantity}")
+        self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
 
         for index, row in df_options_chain.iterrows():
             call_ask_price = row.C_ASK * 100
