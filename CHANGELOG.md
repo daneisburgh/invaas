@@ -2,6 +2,17 @@
 
 
 
+## v1.8.1 (2024-02-12)
+
+### Fix
+
+* fix: update buy contracts quantity logging ([`8f0af90`](https://github.com/daneisburgh/invaas/commit/8f0af90b31edfb57970595c75fe5f708a00d3173))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`ee9dd21`](https://github.com/daneisburgh/invaas/commit/ee9dd211e45ea362961acb88e9393ad4b24759d0))
+
+
 ## v1.8.0 (2024-02-12)
 
 ### Chore
