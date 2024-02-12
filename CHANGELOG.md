@@ -2,6 +2,21 @@
 
 
 
+## v1.7.4 (2024-02-11)
+
+### Chore
+
+* chore: update options historical test notebook ([`2be6ed4`](https://github.com/daneisburgh/invaas/commit/2be6ed48ca77b35fb5e0854282ef639ba1361f68))
+
+* chore: add multiple options historical test notebook ([`c2bb873`](https://github.com/daneisburgh/invaas/commit/c2bb873267b55f2ed46d9c165512f74164ea5c51))
+
+* chore: update options test notebook ([`055e4cf`](https://github.com/daneisburgh/invaas/commit/055e4cf9ac506f6d9570d5ad35a3f68520bfe5b0))
+
+### Fix
+
+* fix: add available options cash logging to schwab task ([`49be30f`](https://github.com/daneisburgh/invaas/commit/49be30f2078ac33b0dbbb3c9567f35aa2bdaa7d0))
+
+
 ## v1.7.3 (2024-02-07)
 
 ### Fix
