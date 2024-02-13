@@ -1,6 +1,8 @@
 import pandas as pd
+import pandas_ta as ta
 import pyotp
 import time
+import yfinance as yf
 
 from datetime import datetime
 
@@ -53,12 +55,39 @@ class SchwabTask(Task):
         previous_max_fear_greed_index = round(df.previous_max_fear_greed_index.values[-1])
         previous_min_fear_greed_index = round(df.previous_min_fear_greed_index.values[-1])
 
-        self.logger.info(f"Historical period: {historical_periods} days")
         self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
         self.logger.info(f"Previous max fear greed index: {previous_max_fear_greed_index}")
         self.logger.info(f"Previous min fear greed index: {previous_min_fear_greed_index}")
 
         return (current_fear_greed_index, previous_max_fear_greed_index, previous_min_fear_greed_index)
+
+    def __get_cboe_vix_data(self):
+        vix_ticker = "^VIX"
+
+        current_vix = (
+            yf.Ticker(vix_ticker)
+            .history(interval="1m", period="1d")
+            .reset_index()
+            .sort_values(by="Datetime", ascending=True)
+            .Close.values[-1]
+        )
+
+        df_vix_history = yf.Ticker(vix_ticker).history(interval="1d", period="5y")
+
+        timestamps = [pd.to_datetime(x, utc=True).round(freq="D") for x in df_vix_history.index.values]
+        timestamps_date_range = pd.date_range(start=timestamps[0], end=timestamps[-1], freq="D")
+        df_vix_history = df_vix_history.set_index(pd.DatetimeIndex(timestamps)).reindex(
+            timestamps_date_range, method="ffill"
+        )
+
+        df_vix_history.ta.sma(length=50, append=True)
+        df_vix_history.columns = [f"{vix_ticker}_{x}" for x in map(str.lower, df_vix_history.columns)]
+        latest_vix_sma = df_vix_history[f"{vix_ticker}_sma_50"].values[-1]
+
+        self.logger.info(f"Current VIX: {current_vix:.2f}")
+        self.logger.info(f"Latest VIX SMA: {latest_vix_sma:.2f}")
+
+        return current_vix, latest_vix_sma
 
     def __get_df_options_chain(self, ticker: str):
         data = []
@@ -162,8 +191,13 @@ class SchwabTask(Task):
             previous_min_fear_greed_index,
         ) = self.__get_fear_greed_index_data()
 
-        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 1
-        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 1
+        (
+            current_vix,
+            latest_vix_sma,
+        ) = self.__get_cboe_vix_data()
+
+        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 2 and current_vix < latest_vix_sma
+        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 2 and current_vix > latest_vix_sma
 
         self.logger.info(f"Buy calls: {good_call_buy}")
         self.logger.info(f"Buy puts: {good_put_buy}")
@@ -243,7 +277,7 @@ class SchwabTask(Task):
         owned_call_options, owned_put_options = self.__get_owned_options()
 
         bought_options = 0
-        max_buy_amount = 10
+        max_buy_amount = 1
         buy_contracts_quantity = 1
         self.logger.info(f"Max unique options to buy: {max_buy_amount}")
         self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
