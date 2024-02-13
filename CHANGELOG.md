@@ -2,6 +2,21 @@
 
 
 
+## v1.9.0 (2024-02-13)
+
+### Build
+
+* build: update schwab job schedule ([`8a6c957`](https://github.com/daneisburgh/invaas/commit/8a6c957e838d35d5dc16112b508487141474746d))
+
+### Feature
+
+* feat: add cboe vix to option trading and limit max buy amount ([`3fa53dd`](https://github.com/daneisburgh/invaas/commit/3fa53ddee19b2d223bba5d21267eab60fcbeaff2))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`2d22586`](https://github.com/daneisburgh/invaas/commit/2d2258676f1c76a4b116255a8206be41ad5b5ef4))
+
+
 ## v1.8.1 (2024-02-12)
 
 ### Fix
