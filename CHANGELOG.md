@@ -2,6 +2,13 @@
 
 
 
+## v1.9.1 (2024-02-13)
+
+### Fix
+
+* fix: update schwab job schedule ([`36bd074`](https://github.com/daneisburgh/invaas/commit/36bd074d47339eb6be2fd5954ac3b1f397c38b81))
+
+
 ## v1.9.0 (2024-02-13)
 
 ### Build
