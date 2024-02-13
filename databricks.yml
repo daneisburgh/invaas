@@ -56,7 +56,7 @@ resources:
       <<:
         - *common_settings
       schedule:
-        quartz_cron_expression: "0 45 15 ? * MON,TUE,WED,THU,FRI *"
+        quartz_cron_expression: "0 30 9-16 ? * MON,TUE,WED,THU,FRI *"
         timezone_id: America/New_York
         pause_status: ${var.schedule_pause_status}
       tasks:
