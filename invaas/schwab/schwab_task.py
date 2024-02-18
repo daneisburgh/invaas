@@ -196,8 +196,8 @@ class SchwabTask(Task):
             latest_vix_sma,
         ) = self.__get_cboe_vix_data()
 
-        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 2 and current_vix < latest_vix_sma
-        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 2 and current_vix > latest_vix_sma
+        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 1 and current_vix < latest_vix_sma
+        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 1 and current_vix > latest_vix_sma
 
         self.logger.info(f"Buy calls: {good_call_buy}")
         self.logger.info(f"Buy puts: {good_put_buy}")
