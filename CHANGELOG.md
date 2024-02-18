@@ -2,6 +2,19 @@
 
 
 
+## v1.9.2 (2024-02-18)
+
+### Chore
+
+* chore: update historical option test notebook ([`dc6d8ff`](https://github.com/daneisburgh/invaas/commit/dc6d8ff358d28b80edc43a75da8ad61af9f57e63))
+
+* chore: update options test notebooks ([`2b45a23`](https://github.com/daneisburgh/invaas/commit/2b45a23192055b700679487d1ec535b32bdd2668))
+
+### Fix
+
+* fix: update option buy logic ([`db4315c`](https://github.com/daneisburgh/invaas/commit/db4315c0fcdcb9e20e33222ddc147546848f0a58))
+
+
 ## v1.9.1 (2024-02-13)
 
 ### Fix
