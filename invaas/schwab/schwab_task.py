@@ -135,7 +135,7 @@ class SchwabTask(Task):
 
     def __buy_product(self, product_id: str, asset_class: str, quantity: float = None, buy_price: float = None):
         if quantity is None and buy_price is None:
-            raise Exception("Must include quantity or available cash to buy")
+            raise Exception("Must include quantity or buy price")
         elif quantity is not None:
             messages, success = self.schwab_api.trade(
                 ticker=product_id,
@@ -300,12 +300,7 @@ class SchwabTask(Task):
                     self.logger.info(
                         f"Buying {buy_contracts_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}"
                     )
-                    self.__buy_product(
-                        product_id=row.C_ID,
-                        asset_class=asset_class,
-                        quantity=buy_contracts_quantity,
-                        available_cash=available_cash,
-                    )
+                    self.__buy_product(product_id=row.C_ID, asset_class=asset_class, quantity=buy_contracts_quantity)
                     available_cash -= call_ask_price
                     bought_options += 1
                 elif (
@@ -320,11 +315,6 @@ class SchwabTask(Task):
                     self.logger.info(
                         f"Buying {buy_contracts_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}"
                     )
-                    self.__buy_product(
-                        product_id=row.P_ID,
-                        asset_class=asset_class,
-                        quantity=buy_contracts_quantity,
-                        available_cash=available_cash,
-                    )
+                    self.__buy_product(product_id=row.P_ID, asset_class=asset_class, quantity=buy_contracts_quantity)
                     available_cash -= put_ask_price
                     bought_options += 1
