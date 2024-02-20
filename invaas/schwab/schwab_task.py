@@ -35,7 +35,7 @@ class SchwabTask(Task):
         self.logger.info(f"Available cash to buy options: {self.__get_available_cash_to_buy_options()}")
 
     def __get_fear_greed_index_data(self):
-        historical_periods = 14
+        historical_periods = 10
         df = pd.DataFrame(data=get_historical_cnn_fear_greed_index()["data"])
         df.set_index(
             pd.DatetimeIndex([pd.Timestamp(x, unit="ms", tz="UTC") for x in df.x]),
