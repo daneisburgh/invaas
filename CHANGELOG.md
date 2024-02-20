@@ -2,6 +2,13 @@
 
 
 
+## v1.9.3 (2024-02-20)
+
+### Fix
+
+* fix: update fear and greed index historical period ([`06dc392`](https://github.com/daneisburgh/invaas/commit/06dc3920d30e041ac596274022f7e3468cb5828e))
+
+
 ## v1.9.2 (2024-02-18)
 
 ### Chore
