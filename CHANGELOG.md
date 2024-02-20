@@ -2,6 +2,17 @@
 
 
 
+## v1.9.4 (2024-02-20)
+
+### Fix
+
+* fix: schwab task buy product usage ([`416538f`](https://github.com/daneisburgh/invaas/commit/416538fadedac4350ed1ac9011407a0f9f7364bb))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`84d7241`](https://github.com/daneisburgh/invaas/commit/84d724197106fcb4bc759c3e5e6ed833074263a7))
+
+
 ## v1.9.3 (2024-02-20)
 
 ### Fix
