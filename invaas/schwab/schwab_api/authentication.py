@@ -9,7 +9,7 @@ from invaas.schwab.schwab_api import urls
 
 
 # Constants
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{version}) Gecko/20100101 Firefox/"
 VIEWPORT = {"width": 1920, "height": 1080}
 
 
@@ -86,7 +86,7 @@ class SessionManager:
             await self.page.goto(urls.homepage())
 
         # Capture authorization token.
-        await self.page.route(re.compile(r".*balancespositions*"), self.capture_auth_token)
+        await self.page.route(re.compile(r".*positions*"), self.capture_auth_token)
 
         # Wait for the login frame to load
         login_frame = "schwablmslogin"
