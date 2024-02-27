@@ -1,10 +1,12 @@
+import json
 import pandas as pd
 import pandas_ta as ta
 import pyotp
 import time
 import yfinance as yf
 
-from datetime import datetime
+from databricks.sdk.service.jobs import RunLifeCycleState, RunResultState
+from datetime import datetime, timedelta, timezone
 
 from invaas.task import Task
 from invaas.schwab.schwab_api.schwab import Schwab
@@ -19,6 +21,7 @@ class SchwabTask(Task):
     def __init__(self, env: str):
         super().__init__(env=env)
         self.schwab_api = Schwab(schwab_account_id=self.get_secret("SCHWAB-ACCOUNT-ID"))
+        self.previous_run_output = self.__get_previous_run_output()
 
     async def setup_api(self):
         self.logger.info("Logging in to Schwab")
@@ -33,6 +36,37 @@ class SchwabTask(Task):
         self.logger.info(f"Net worth: {self.__get_net_worth()}")
         self.logger.info(f"Available cash to buy stocks: {self.__get_available_cash_to_buy_stocks()}")
         self.logger.info(f"Available cash to buy options: {self.__get_available_cash_to_buy_options()}")
+
+    def __get_previous_run_output(self):
+        if self.env == "local":
+            return []
+
+        previous_run_output = []
+        previous_start_time_ms = (datetime.now(timezone.utc) - timedelta(hours=12)).timestamp() * 1000
+        previous_job_run_ids = [
+            x.run_id
+            for x in self.workspace_client.jobs.list_runs(
+                job_id=self.job_id,
+                start_time_from=previous_start_time_ms,
+            )
+            if (
+                x.state.life_cycle_state == RunLifeCycleState.TERMINATED
+                and x.state.result_state == RunResultState.SUCCESS
+            )
+        ]
+
+        for job_run_id in previous_job_run_ids:
+            job_run = self.workspace_client.jobs.get_run(run_id=job_run_id)
+            job_run_output = self.workspace_client.jobs.get_run_output(job_run.tasks[0].run_id)
+
+            if job_run_output.notebook_output and job_run_output.notebook_output.result:
+                try:
+                    notebook_output = json.loads(job_run_output.notebook_output.result)
+                    previous_run_output.append(notebook_output)
+                except Exception as e:
+                    self.logger.warning(f"Error getting notebook output: {e}")
+
+        return previous_run_output
 
     def __get_fear_greed_index_data(self):
         historical_periods = 10
@@ -54,6 +88,21 @@ class SchwabTask(Task):
         current_fear_greed_index = round(df.fear_greed_index.values[-1])
         previous_max_fear_greed_index = round(df.previous_max_fear_greed_index.values[-1])
         previous_min_fear_greed_index = round(df.previous_min_fear_greed_index.values[-1])
+
+        previous_run_fear_greed_indexes = [int(x["current_fear_greed_index"]) for x in self.previous_run_output]
+        previous_run_max_fear_greed_index = max(previous_run_fear_greed_indexes)
+        previous_run_min_fear_greed_index = min(previous_run_fear_greed_indexes)
+
+        previous_max_fear_greed_index = (
+            previous_run_max_fear_greed_index
+            if previous_run_max_fear_greed_index > previous_max_fear_greed_index
+            else previous_max_fear_greed_index
+        )
+        previous_min_fear_greed_index = (
+            previous_run_min_fear_greed_index
+            if previous_run_min_fear_greed_index < previous_min_fear_greed_index
+            else previous_min_fear_greed_index
+        )
 
         self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
         self.logger.info(f"Previous max fear greed index: {previous_max_fear_greed_index}")
@@ -196,11 +245,14 @@ class SchwabTask(Task):
             latest_vix_sma,
         ) = self.__get_cboe_vix_data()
 
-        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 1 and current_vix < latest_vix_sma
-        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 1 and current_vix > latest_vix_sma
+        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 1
+        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 1
 
         self.logger.info(f"Buy calls: {good_call_buy}")
         self.logger.info(f"Buy puts: {good_put_buy}")
+
+        sold_options = 0
+        bought_options = 0
 
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
@@ -249,6 +301,7 @@ class SchwabTask(Task):
                         asset_class=asset_class,
                         quantity=sell_contracts_quantity,
                     )
+                    sold_options += 1
             elif owned_put_option is not None:
                 sell_dte = get_sell_dte(
                     owned_option=owned_put_option,
@@ -267,6 +320,7 @@ class SchwabTask(Task):
                         asset_class=asset_class,
                         quantity=sell_contracts_quantity,
                     )
+                    sold_options += 1
 
         time.sleep(10)
 
@@ -276,26 +330,31 @@ class SchwabTask(Task):
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
-        bought_options = 0
+        max_buy_price = 500
         max_buy_amount = 1
         buy_contracts_quantity = 1
+        previous_bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
+
+        self.logger.info(f"Max buy price: ${max_buy_price}")
         self.logger.info(f"Max unique options to buy: {max_buy_amount}")
         self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
+        self.logger.info(f"Previous bought options: {previous_bought_options}")
 
         for index, row in df_options_chain.iterrows():
             call_ask_price = row.C_ASK * 100
             put_ask_price = row.P_ASK * 100
-            current_max_buy_price = available_cash / buy_contracts_quantity
+            current_max_buy_price = available_cash / buy_contracts_quantity / 5
+            current_max_buy_price = current_max_buy_price if current_max_buy_price < max_buy_price else max_buy_price
 
             if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT <= max_strike_distance_pct:
                 if (
                     good_call_buy
                     and row.C_VOLUME > min_volume
-                    and row.UNDERLYING_LAST > row.STRIKE
-                    # and self.max_buy_price >= call_ask_price
-                    and current_max_buy_price >= call_ask_price
+                    # and row.UNDERLYING_LAST > row.STRIKE
+                    and call_ask_price <= current_max_buy_price
                     and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
                     and bought_options < max_buy_amount
+                    and previous_bought_options < max_buy_amount
                 ):
                     self.logger.info(
                         f"Buying {buy_contracts_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}"
@@ -306,11 +365,11 @@ class SchwabTask(Task):
                 elif (
                     good_put_buy
                     and row.P_VOLUME > min_volume
-                    and row.UNDERLYING_LAST < row.STRIKE
-                    # and self.max_buy_price >= put_ask_price
-                    and current_max_buy_price >= put_ask_price
+                    # and row.UNDERLYING_LAST < row.STRIKE
+                    and put_ask_price <= current_max_buy_price
                     and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
                     and bought_options < max_buy_amount
+                    and previous_bought_options < max_buy_amount
                 ):
                     self.logger.info(
                         f"Buying {buy_contracts_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}"
@@ -318,3 +377,7 @@ class SchwabTask(Task):
                     self.__buy_product(product_id=row.P_ID, asset_class=asset_class, quantity=buy_contracts_quantity)
                     available_cash -= put_ask_price
                     bought_options += 1
+
+        self.current_fear_greed_index = current_fear_greed_index
+        self.sold_options = sold_options
+        self.bought_options = bought_options
