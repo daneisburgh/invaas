@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 
 from abc import ABC
+from databricks.sdk import WorkspaceClient
 from dotenv import load_dotenv, find_dotenv
 from pyspark.sql import SparkSession
 from typing import Union
@@ -27,6 +28,12 @@ class Task(ABC):
         self.spark = None if self.env == "local" else SparkSession.builder.getOrCreate()
         self.logger = self.__get_logger()
         self.dbutils = self.__get_dbutils(self.spark)
+        self.job_id = self.dbutils.widgets.get("job_id")
+        self.logger.info(f"Job ID: {self.job_id}")
+        self.workspace_client = WorkspaceClient(
+            host=f"https://{self.spark.conf.get('spark.databricks.workspaceUrl')}/",
+            token=self.get_secret("DATABRICKS-TOKEN"),
+        )
 
         self.logger.info(f"Initializing task for {self.env} environment")
 
