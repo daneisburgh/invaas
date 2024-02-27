@@ -2,6 +2,31 @@
 
 
 
+## v1.10.0 (2024-02-27)
+
+### Build
+
+* build: update schwab job schedule and parameters ([`8d3ae02`](https://github.com/daneisburgh/invaas/commit/8d3ae02a755f3f26fcf111e493362f45eb909e28))
+
+* build: add databricks-sdk to package requirements ([`f7c11b9`](https://github.com/daneisburgh/invaas/commit/f7c11b92eb18c37927bdd372d898646482c42910))
+
+### Chore
+
+* chore: update historical options test notebook ([`87e01ca`](https://github.com/daneisburgh/invaas/commit/87e01ca05e3d76acc73ceda7ea0d1ee29b061a35))
+
+### Feature
+
+* feat: add job id and workspace client to task class ([`4769fd2`](https://github.com/daneisburgh/invaas/commit/4769fd2b17deed985dcd55c88a72d82c5d048aa7))
+
+* feat: update schwab task to use previous run output in option logic ([`9ff690f`](https://github.com/daneisburgh/invaas/commit/9ff690fa4cd2cff996a748d8f94c6f7f3d01103f))
+
+* feat: add exit with output to schwab notebook ([`25457d5`](https://github.com/daneisburgh/invaas/commit/25457d50a21a6dc964ecfa92821705c85f5dce9e))
+
+### Fix
+
+* fix: schwab authentication login ([`864a798`](https://github.com/daneisburgh/invaas/commit/864a7980c99d9dab6a2006b7ceb180563ae922d0))
+
+
 ## v1.9.4 (2024-02-20)
 
 ### Fix
