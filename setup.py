@@ -9,6 +9,7 @@ from setuptools import find_packages, setup
 from invaas import __version__
 
 PACKAGE_REQUIREMENTS = [
+    "databricks-sdk==0.20.0",
     "pandas==2.1.3",
     "pandas-ta==0.3.14b",
     "playwright==1.41.0",
