@@ -336,11 +336,11 @@ class SchwabTask(Task):
         self.logger.info(f"Buy price: {int(100/buy_price_divisor)}% of available cash")
         self.logger.info(f"Max buy price: ${max_buy_price}")
         self.logger.info(f"Max unique options to buy: {max_buy_amount}")
+        self.logger.info(f"Previous bought options: {previous_bought_options}")
         self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
         self.logger.info(f"Min DTE to buy: {min_dte_buy}")
         self.logger.info(f"Min volume: {min_volume}")
         self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
-        self.logger.info(f"Previous bought options: {previous_bought_options}")
         print()
 
         if previous_bought_options < max_buy_amount:
