@@ -2,6 +2,17 @@
 
 
 
+## v1.10.2 (2024-02-28)
+
+### Fix
+
+* fix: update schwab schedule ([`1acde2e`](https://github.com/daneisburgh/invaas/commit/1acde2e24e01cfbeb8d4373908764b2cc74cf36b))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`b5c02bb`](https://github.com/daneisburgh/invaas/commit/b5c02bb0eba29fd84251b8c4c1204cb148456f47))
+
+
 ## v1.10.1 (2024-02-28)
 
 ### Fix
