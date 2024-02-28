@@ -2,6 +2,23 @@
 
 
 
+## v1.10.3 (2024-02-28)
+
+### Chore
+
+* chore: update options test notebook ([`18c2cb6`](https://github.com/daneisburgh/invaas/commit/18c2cb6d2808b81c002f589d0d09d934c610bbf8))
+
+### Fix
+
+* fix: update schwab bought options logic ([`9b800ce`](https://github.com/daneisburgh/invaas/commit/9b800ce2949068d30bcb1353a272ddad4a31801f))
+
+* fix: update schwab schedule ([`86790c8`](https://github.com/daneisburgh/invaas/commit/86790c842579467400ae432ffed6cb0b3bd4ddaa))
+
+### Refactor
+
+* refactor: update schwab logging ([`ebc2530`](https://github.com/daneisburgh/invaas/commit/ebc253000ae64fcdede396bd66cd964eaac704bf))
+
+
 ## v1.10.2 (2024-02-28)
 
 ### Fix
