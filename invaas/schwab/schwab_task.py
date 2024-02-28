@@ -68,9 +68,8 @@ class SchwabTask(Task):
 
         return previous_run_output
 
-    def __get_fear_greed_index_data(self):
-        historical_periods = 10
-        df = pd.DataFrame(data=get_historical_cnn_fear_greed_index()["data"])
+    def __get_fear_greed_index_data(self, historical_periods: int):
+        df = pd.DataFrame(data=get_historical_cnn_fear_greed_index()["data"][:-1])
         df.set_index(
             pd.DatetimeIndex([pd.Timestamp(x, unit="ms", tz="UTC") for x in df.x]),
             inplace=True,
@@ -90,19 +89,16 @@ class SchwabTask(Task):
         previous_min_fear_greed_index = round(df.previous_min_fear_greed_index.values[-1])
 
         previous_run_fear_greed_indexes = [int(x["current_fear_greed_index"]) for x in self.previous_run_output]
-        previous_run_max_fear_greed_index = max(previous_run_fear_greed_indexes)
-        previous_run_min_fear_greed_index = min(previous_run_fear_greed_indexes)
 
-        previous_max_fear_greed_index = (
-            previous_run_max_fear_greed_index
-            if previous_run_max_fear_greed_index > previous_max_fear_greed_index
-            else previous_max_fear_greed_index
-        )
-        previous_min_fear_greed_index = (
-            previous_run_min_fear_greed_index
-            if previous_run_min_fear_greed_index < previous_min_fear_greed_index
-            else previous_min_fear_greed_index
-        )
+        if len(previous_run_fear_greed_indexes) > 0:
+            previous_run_max_fear_greed_index = max(previous_run_fear_greed_indexes)
+            previous_run_min_fear_greed_index = min(previous_run_fear_greed_indexes)
+
+            if previous_run_max_fear_greed_index > previous_max_fear_greed_index:
+                previous_max_fear_greed_index = previous_run_max_fear_greed_index
+
+            if previous_run_min_fear_greed_index < previous_min_fear_greed_index:
+                previous_min_fear_greed_index = previous_run_min_fear_greed_index
 
         self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
         self.logger.info(f"Previous max fear greed index: {previous_max_fear_greed_index}")
@@ -131,12 +127,12 @@ class SchwabTask(Task):
 
         df_vix_history.ta.sma(length=50, append=True)
         df_vix_history.columns = [f"{vix_ticker}_{x}" for x in map(str.lower, df_vix_history.columns)]
-        latest_vix_sma = df_vix_history[f"{vix_ticker}_sma_50"].values[-1]
+        current_vix_sma = df_vix_history[f"{vix_ticker}_sma_50"].values[-1]
 
         self.logger.info(f"Current VIX: {current_vix:.2f}")
-        self.logger.info(f"Latest VIX SMA: {latest_vix_sma:.2f}")
+        self.logger.info(f"Current VIX SMA: {current_vix_sma:.2f}")
 
-        return current_vix, latest_vix_sma
+        return current_vix, current_vix_sma
 
     def __get_df_options_chain(self, ticker: str):
         data = []
@@ -228,40 +224,36 @@ class SchwabTask(Task):
         return self.schwab_api.get_balance_positions()["balanceDetails"]["optionsBalances"]["longOptions"]
 
     def create_options_orders(self):
+        asset_class = "Option"
         ticker = "SPY"
         self.logger.info(f"Trading options for {ticker}")
 
         self.schwab_api.get_account_info()
         transaction_history = self.schwab_api.get_transaction_history()
+        df_options_chain = self.__get_df_options_chain(ticker=ticker)
+        owned_call_options, owned_put_options = self.__get_owned_options()
 
         (
             current_fear_greed_index,
             previous_max_fear_greed_index,
             previous_min_fear_greed_index,
-        ) = self.__get_fear_greed_index_data()
+        ) = self.__get_fear_greed_index_data(historical_periods=5)
 
-        (
-            current_vix,
-            latest_vix_sma,
-        ) = self.__get_cboe_vix_data()
+        # (
+        #     current_vix,
+        #     current_vix_sma,
+        # ) = self.__get_cboe_vix_data()
 
-        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - 1
-        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + 1
+        fear_greed_index_diff = 0
+        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - fear_greed_index_diff
+        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + fear_greed_index_diff
+        min_dte_sell = 7
+        sold_options = 0
 
         self.logger.info(f"Buy calls: {good_call_buy}")
         self.logger.info(f"Buy puts: {good_put_buy}")
-
-        sold_options = 0
-        bought_options = 0
-
-        df_options_chain = self.__get_df_options_chain(ticker=ticker)
-        owned_call_options, owned_put_options = self.__get_owned_options()
-
-        asset_class = "Option"
-        min_dte_buy = 14
-        min_dte_sell = int(min_dte_buy / 2)
-        min_volume = 100
-        max_strike_distance_pct = 0.02
+        self.logger.info(f"Min DTE to sell: {min_dte_sell}")
+        print()
 
         def get_sell_dte(owned_option, current_dte, expire_date, transaction_history):
             purchase_dte = (
@@ -322,61 +314,77 @@ class SchwabTask(Task):
                     )
                     sold_options += 1
 
-        time.sleep(10)
-
-        available_cash = self.__get_available_cash_to_buy_options()
-        self.logger.info(f"Available cash to buy options: {available_cash}")
+        if sold_options > 0:
+            print()
+            time.sleep(10)
 
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
         owned_call_options, owned_put_options = self.__get_owned_options()
 
+        available_cash = self.__get_available_cash_to_buy_options()
+        buy_price_divisor = 4
+        min_dte_buy = int(min_dte_sell * 2)
+        min_volume = 100
+        max_strike_distance_pct = 0.02
         max_buy_price = 500
         max_buy_amount = 1
         buy_contracts_quantity = 1
-        previous_bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
+        bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
 
+        self.logger.info(f"Available cash to buy options: {available_cash}")
+        self.logger.info(f"Buy price: {int(100/buy_price_divisor)}% of available cash")
         self.logger.info(f"Max buy price: ${max_buy_price}")
         self.logger.info(f"Max unique options to buy: {max_buy_amount}")
         self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
-        self.logger.info(f"Previous bought options: {previous_bought_options}")
+        self.logger.info(f"Min DTE to buy: {min_dte_buy}")
+        self.logger.info(f"Min volume: {min_volume}")
+        self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
+        self.logger.info(f"Previous bought options: {bought_options}")
+        print()
 
-        for index, row in df_options_chain.iterrows():
-            call_ask_price = row.C_ASK * 100
-            put_ask_price = row.P_ASK * 100
-            current_max_buy_price = available_cash / buy_contracts_quantity / 5
-            current_max_buy_price = current_max_buy_price if current_max_buy_price < max_buy_price else max_buy_price
+        if bought_options < max_buy_amount:
+            for index, row in df_options_chain.iterrows():
+                call_ask_price = row.C_ASK * 100
+                put_ask_price = row.P_ASK * 100
+                current_max_buy_price = available_cash / buy_contracts_quantity / buy_price_divisor
+                current_max_buy_price = (
+                    current_max_buy_price if current_max_buy_price < max_buy_price else max_buy_price
+                )
 
-            if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT <= max_strike_distance_pct:
-                if (
-                    good_call_buy
-                    and row.C_VOLUME > min_volume
-                    # and row.UNDERLYING_LAST > row.STRIKE
-                    and call_ask_price <= current_max_buy_price
-                    and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
-                    and bought_options < max_buy_amount
-                    and previous_bought_options < max_buy_amount
-                ):
-                    self.logger.info(
-                        f"Buying {buy_contracts_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}"
-                    )
-                    self.__buy_product(product_id=row.C_ID, asset_class=asset_class, quantity=buy_contracts_quantity)
-                    available_cash -= call_ask_price
-                    bought_options += 1
-                elif (
-                    good_put_buy
-                    and row.P_VOLUME > min_volume
-                    # and row.UNDERLYING_LAST < row.STRIKE
-                    and put_ask_price <= current_max_buy_price
-                    and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
-                    and bought_options < max_buy_amount
-                    and previous_bought_options < max_buy_amount
-                ):
-                    self.logger.info(
-                        f"Buying {buy_contracts_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}"
-                    )
-                    self.__buy_product(product_id=row.P_ID, asset_class=asset_class, quantity=buy_contracts_quantity)
-                    available_cash -= put_ask_price
-                    bought_options += 1
+                if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT <= max_strike_distance_pct:
+                    if (
+                        good_call_buy
+                        and row.C_VOLUME > min_volume
+                        # and row.UNDERLYING_LAST > row.STRIKE
+                        and call_ask_price <= current_max_buy_price
+                        and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
+                    ):
+                        self.logger.info(
+                            f"Buying {buy_contracts_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}"
+                        )
+                        self.__buy_product(
+                            product_id=row.C_ID, asset_class=asset_class, quantity=buy_contracts_quantity
+                        )
+                        available_cash -= call_ask_price
+                        bought_options += 1
+                    elif (
+                        good_put_buy
+                        and row.P_VOLUME > min_volume
+                        # and row.UNDERLYING_LAST < row.STRIKE
+                        and put_ask_price <= current_max_buy_price
+                        and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
+                    ):
+                        self.logger.info(
+                            f"Buying {buy_contracts_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}"
+                        )
+                        self.__buy_product(
+                            product_id=row.P_ID, asset_class=asset_class, quantity=buy_contracts_quantity
+                        )
+                        available_cash -= put_ask_price
+                        bought_options += 1
+
+                if bought_options >= max_buy_amount:
+                    break
 
         self.current_fear_greed_index = current_fear_greed_index
         self.sold_options = sold_options
