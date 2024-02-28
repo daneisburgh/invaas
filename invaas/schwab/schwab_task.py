@@ -329,7 +329,8 @@ class SchwabTask(Task):
         max_buy_price = 500
         max_buy_amount = 1
         buy_contracts_quantity = 1
-        bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
+        bought_options = 0
+        previous_bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
 
         self.logger.info(f"Available cash to buy options: {available_cash}")
         self.logger.info(f"Buy price: {int(100/buy_price_divisor)}% of available cash")
@@ -339,10 +340,10 @@ class SchwabTask(Task):
         self.logger.info(f"Min DTE to buy: {min_dte_buy}")
         self.logger.info(f"Min volume: {min_volume}")
         self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
-        self.logger.info(f"Previous bought options: {bought_options}")
+        self.logger.info(f"Previous bought options: {previous_bought_options}")
         print()
 
-        if bought_options < max_buy_amount:
+        if previous_bought_options < max_buy_amount:
             for index, row in df_options_chain.iterrows():
                 call_ask_price = row.C_ASK * 100
                 put_ask_price = row.P_ASK * 100
@@ -383,7 +384,7 @@ class SchwabTask(Task):
                         available_cash -= put_ask_price
                         bought_options += 1
 
-                if bought_options >= max_buy_amount:
+                if (bought_options + previous_bought_options) >= max_buy_amount:
                     break
 
         self.current_fear_greed_index = current_fear_greed_index
