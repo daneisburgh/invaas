@@ -2,6 +2,15 @@
 
 
 
+## v1.10.1 (2024-02-28)
+
+### Fix
+
+* fix: update schwab task option logic and logging ([`a6e9514`](https://github.com/daneisburgh/invaas/commit/a6e951410b22242ee32afd0768bd5daa62d3cabe))
+
+* fix: initialize job id and workspace client for non-local environments ([`10cf978`](https://github.com/daneisburgh/invaas/commit/10cf9780717e7587efc7d07eec6f41acdcb7e34f))
+
+
 ## v1.10.0 (2024-02-27)
 
 ### Build
