@@ -51,6 +51,8 @@ resources:
           job_cluster_key: job_cluster
           notebook_task:
             notebook_path: "invaas/coinbase/coinbase_notebook.ipynb"
+            base_parameters:
+              job_id: "{{job.id}}"
     schwab:
       name: ${bundle.name}-schwab
       <<:
