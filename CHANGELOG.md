@@ -2,6 +2,31 @@
 
 
 
+## v1.10.4 (2024-02-29)
+
+### Chore
+
+* chore: update options test notebook ([`eb7a566`](https://github.com/daneisburgh/invaas/commit/eb7a566631edc5ea86d37a9ccce5970fc9df6cd2))
+
+* chore: update notebook sample data ([`6f044fb`](https://github.com/daneisburgh/invaas/commit/6f044fbc3204eb1a3ff427e05b79f6953bc05cc0))
+
+### Fix
+
+* fix: update previous bought and owned option logic ([`9e0bac2`](https://github.com/daneisburgh/invaas/commit/9e0bac267958cf19bcb2e4fcfd88266dc19dd652))
+
+* fix: add coinbase job base parameters ([`b1308be`](https://github.com/daneisburgh/invaas/commit/b1308be797e7c889807d3d6aed1c0f146d88afa8))
+
+### Refactor
+
+* refactor: remove unused import from schwab notebook ([`ff20763`](https://github.com/daneisburgh/invaas/commit/ff207633dd636ba9330af1db2385a247acf0f42a))
+
+* refactor: schwab notebook and task ([`9541923`](https://github.com/daneisburgh/invaas/commit/95419235cb8dedfea792e98380a1870de062523f))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`c082e90`](https://github.com/daneisburgh/invaas/commit/c082e90c60e9a2860169f14869db57319136359b))
+
+
 ## v1.10.3 (2024-02-28)
 
 ### Chore
