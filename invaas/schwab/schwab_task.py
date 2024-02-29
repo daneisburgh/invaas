@@ -37,6 +37,186 @@ class SchwabTask(Task):
         self.logger.info(f"Available cash to buy stocks: {self.__get_available_cash_to_buy_stocks()}")
         self.logger.info(f"Available cash to buy options: {self.__get_available_cash_to_buy_options()}")
 
+    def exit_with_output(self):
+        self.dbutils.notebook.exit(
+            json.dumps(
+                {
+                    "current_fear_greed_index": self.current_fear_greed_index,
+                    "sold_options": self.sold_options,
+                    "bought_options": self.bought_options,
+                }
+            )
+        )
+
+    def create_options_orders(self):
+        asset_class = "Option"
+        ticker = "SPY"
+        self.logger.info(f"Trading options for {ticker}")
+
+        self.schwab_api.get_account_info()
+        transaction_history = self.schwab_api.get_transaction_history()
+        df_options_chain = self.__get_df_options_chain(ticker=ticker)
+        owned_call_options, owned_put_options = self.__get_owned_options()
+
+        (
+            current_fear_greed_index,
+            previous_max_fear_greed_index,
+            previous_min_fear_greed_index,
+        ) = self.__get_fear_greed_index_data(historical_periods=5)
+
+        # (
+        #     current_vix,
+        #     current_vix_sma,
+        # ) = self.__get_cboe_vix_data()
+
+        fear_greed_index_diff = 0
+        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - fear_greed_index_diff
+        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + fear_greed_index_diff
+        min_dte_sell = 7
+        sold_options = 0
+
+        self.logger.info(f"Buy calls: {good_call_buy}")
+        self.logger.info(f"Buy puts: {good_put_buy}")
+        self.logger.info(f"Min DTE to sell: {min_dte_sell}")
+        print()
+
+        def get_sell_dte(owned_option, current_dte, expire_date, transaction_history):
+            purchase_dte = (
+                expire_date
+                - datetime.strptime(
+                    next(
+                        transaction
+                        for transaction in transaction_history["brokerageTransactions"]
+                        if transaction["symbol"] == owned_option["displaySymbol"]
+                    )["transactionDate"],
+                    "%m/%d/%Y",
+                )
+            ).days
+            return current_dte < min_dte_sell or (purchase_dte - current_dte) > min_dte_sell
+
+        for index, row in df_options_chain.iterrows():
+            call_bid_price = row.C_BID * 100
+            put_bid_price = row.P_BID * 100
+            owned_call_option = next((option for option in owned_call_options if option["symbol"] == row.C_ID), None)
+            owned_put_option = next((option for option in owned_put_options if option["symbol"] == row.P_ID), None)
+
+            if owned_call_option is not None:
+                sell_dte = get_sell_dte(
+                    owned_option=owned_call_option,
+                    current_dte=row.DTE,
+                    expire_date=row.EXPIRE_DATE,
+                    transaction_history=transaction_history,
+                )
+
+                if not good_call_buy or sell_dte:
+                    sell_contracts_quantity = int(owned_call_option["shares"])
+                    self.logger.info(
+                        f"Selling {sell_contracts_quantity} contracts of '{row.C_ID}' for ${call_bid_price:.2f}"
+                    )
+                    self.__sell_product(
+                        product_id=row.C_ID,
+                        asset_class=asset_class,
+                        quantity=sell_contracts_quantity,
+                    )
+                    sold_options += 1
+            elif owned_put_option is not None:
+                sell_dte = get_sell_dte(
+                    owned_option=owned_put_option,
+                    current_dte=row.DTE,
+                    expire_date=row.EXPIRE_DATE,
+                    transaction_history=transaction_history,
+                )
+
+                if not good_put_buy or sell_dte:
+                    sell_contracts_quantity = int(owned_put_option["shares"])
+                    self.logger.info(
+                        f"Selling {sell_contracts_quantity} contracts of '{row.P_ID}' for ${put_bid_price:.2f}"
+                    )
+                    self.__sell_product(
+                        product_id=row.P_ID,
+                        asset_class=asset_class,
+                        quantity=sell_contracts_quantity,
+                    )
+                    sold_options += 1
+
+        if sold_options > 0:
+            print()
+            time.sleep(10)
+
+        df_options_chain = self.__get_df_options_chain(ticker=ticker)
+        owned_call_options, owned_put_options = self.__get_owned_options()
+
+        available_cash = self.__get_available_cash_to_buy_options()
+        buy_price_divisor = 4
+        min_dte_buy = int(min_dte_sell * 2)
+        min_volume = 100
+        max_strike_distance_pct = 0.02
+        max_buy_price = 500
+        max_buy_amount = 1
+        buy_contracts_quantity = 1
+        bought_options = 0
+        previous_bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
+        previous_sold_options = sum([int(x["sold_options"]) for x in self.previous_run_output])
+
+        self.logger.info(f"Available cash to buy options: {available_cash}")
+        self.logger.info(f"Buy price: {int(100/buy_price_divisor)}% of available cash")
+        self.logger.info(f"Max buy price: ${max_buy_price}")
+        self.logger.info(f"Max unique options to buy: {max_buy_amount}")
+        self.logger.info(f"Previous bought options: {previous_bought_options}")
+        self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
+        self.logger.info(f"Min DTE to buy: {min_dte_buy}")
+        self.logger.info(f"Min volume: {min_volume}")
+        self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
+        print()
+
+        if previous_bought_options < max_buy_amount:
+            for index, row in df_options_chain.iterrows():
+                call_ask_price = row.C_ASK * 100
+                put_ask_price = row.P_ASK * 100
+                current_max_buy_price = available_cash / buy_contracts_quantity / buy_price_divisor
+                current_max_buy_price = (
+                    current_max_buy_price if current_max_buy_price < max_buy_price else max_buy_price
+                )
+
+                if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT <= max_strike_distance_pct:
+                    if (
+                        good_call_buy
+                        and row.C_VOLUME > min_volume
+                        # and row.UNDERLYING_LAST > row.STRIKE
+                        and call_ask_price <= current_max_buy_price
+                        and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
+                    ):
+                        self.logger.info(
+                            f"Buying {buy_contracts_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}"
+                        )
+                        self.__buy_product(
+                            product_id=row.C_ID, asset_class=asset_class, quantity=buy_contracts_quantity
+                        )
+                        available_cash -= call_ask_price
+                        bought_options += 1
+                    elif (
+                        good_put_buy
+                        and row.P_VOLUME > min_volume
+                        # and row.UNDERLYING_LAST < row.STRIKE
+                        and put_ask_price <= current_max_buy_price
+                        and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
+                    ):
+                        self.logger.info(
+                            f"Buying {buy_contracts_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}"
+                        )
+                        self.__buy_product(
+                            product_id=row.P_ID, asset_class=asset_class, quantity=buy_contracts_quantity
+                        )
+                        available_cash -= put_ask_price
+                        bought_options += 1
+
+                if (bought_options + previous_bought_options) >= max_buy_amount:
+                    break
+
+        self.current_fear_greed_index = current_fear_greed_index
+        self.sold_options = sold_options
+        self.bought_options = bought_options
+
     def __get_previous_run_output(self):
         if self.env == "local":
             return []
@@ -222,171 +402,3 @@ class SchwabTask(Task):
 
     def __get_available_cash_to_buy_options(self):
         return self.schwab_api.get_balance_positions()["balanceDetails"]["optionsBalances"]["longOptions"]
-
-    def create_options_orders(self):
-        asset_class = "Option"
-        ticker = "SPY"
-        self.logger.info(f"Trading options for {ticker}")
-
-        self.schwab_api.get_account_info()
-        transaction_history = self.schwab_api.get_transaction_history()
-        df_options_chain = self.__get_df_options_chain(ticker=ticker)
-        owned_call_options, owned_put_options = self.__get_owned_options()
-
-        (
-            current_fear_greed_index,
-            previous_max_fear_greed_index,
-            previous_min_fear_greed_index,
-        ) = self.__get_fear_greed_index_data(historical_periods=5)
-
-        # (
-        #     current_vix,
-        #     current_vix_sma,
-        # ) = self.__get_cboe_vix_data()
-
-        fear_greed_index_diff = 0
-        good_call_buy = current_fear_greed_index >= previous_max_fear_greed_index - fear_greed_index_diff
-        good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + fear_greed_index_diff
-        min_dte_sell = 7
-        sold_options = 0
-
-        self.logger.info(f"Buy calls: {good_call_buy}")
-        self.logger.info(f"Buy puts: {good_put_buy}")
-        self.logger.info(f"Min DTE to sell: {min_dte_sell}")
-        print()
-
-        def get_sell_dte(owned_option, current_dte, expire_date, transaction_history):
-            purchase_dte = (
-                expire_date
-                - datetime.strptime(
-                    next(
-                        transaction
-                        for transaction in transaction_history["brokerageTransactions"]
-                        if transaction["symbol"] == owned_option["displaySymbol"]
-                    )["transactionDate"],
-                    "%m/%d/%Y",
-                )
-            ).days
-            return current_dte < min_dte_sell or (purchase_dte - current_dte) > min_dte_sell
-
-        for index, row in df_options_chain.iterrows():
-            call_bid_price = row.C_BID * 100
-            put_bid_price = row.P_BID * 100
-            owned_call_option = next((option for option in owned_call_options if option["symbol"] == row.C_ID), None)
-            owned_put_option = next((option for option in owned_put_options if option["symbol"] == row.P_ID), None)
-
-            if owned_call_option is not None:
-                sell_dte = get_sell_dte(
-                    owned_option=owned_call_option,
-                    current_dte=row.DTE,
-                    expire_date=row.EXPIRE_DATE,
-                    transaction_history=transaction_history,
-                )
-
-                if not good_call_buy or sell_dte:
-                    sell_contracts_quantity = int(owned_call_option["shares"])
-                    self.logger.info(
-                        f"Selling {sell_contracts_quantity} contracts of '{row.C_ID}' for ${call_bid_price:.2f}"
-                    )
-                    self.__sell_product(
-                        product_id=row.C_ID,
-                        asset_class=asset_class,
-                        quantity=sell_contracts_quantity,
-                    )
-                    sold_options += 1
-            elif owned_put_option is not None:
-                sell_dte = get_sell_dte(
-                    owned_option=owned_put_option,
-                    current_dte=row.DTE,
-                    expire_date=row.EXPIRE_DATE,
-                    transaction_history=transaction_history,
-                )
-
-                if not good_put_buy or sell_dte:
-                    sell_contracts_quantity = int(owned_put_option["shares"])
-                    self.logger.info(
-                        f"Selling {sell_contracts_quantity} contracts of '{row.P_ID}' for ${put_bid_price:.2f}"
-                    )
-                    self.__sell_product(
-                        product_id=row.P_ID,
-                        asset_class=asset_class,
-                        quantity=sell_contracts_quantity,
-                    )
-                    sold_options += 1
-
-        if sold_options > 0:
-            print()
-            time.sleep(10)
-
-        df_options_chain = self.__get_df_options_chain(ticker=ticker)
-        owned_call_options, owned_put_options = self.__get_owned_options()
-
-        available_cash = self.__get_available_cash_to_buy_options()
-        buy_price_divisor = 4
-        min_dte_buy = int(min_dte_sell * 2)
-        min_volume = 100
-        max_strike_distance_pct = 0.02
-        max_buy_price = 500
-        max_buy_amount = 1
-        buy_contracts_quantity = 1
-        bought_options = 0
-        previous_bought_options = sum([int(x["bought_options"]) for x in self.previous_run_output])
-
-        self.logger.info(f"Available cash to buy options: {available_cash}")
-        self.logger.info(f"Buy price: {int(100/buy_price_divisor)}% of available cash")
-        self.logger.info(f"Max buy price: ${max_buy_price}")
-        self.logger.info(f"Max unique options to buy: {max_buy_amount}")
-        self.logger.info(f"Previous bought options: {previous_bought_options}")
-        self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
-        self.logger.info(f"Min DTE to buy: {min_dte_buy}")
-        self.logger.info(f"Min volume: {min_volume}")
-        self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
-        print()
-
-        if previous_bought_options < max_buy_amount:
-            for index, row in df_options_chain.iterrows():
-                call_ask_price = row.C_ASK * 100
-                put_ask_price = row.P_ASK * 100
-                current_max_buy_price = available_cash / buy_contracts_quantity / buy_price_divisor
-                current_max_buy_price = (
-                    current_max_buy_price if current_max_buy_price < max_buy_price else max_buy_price
-                )
-
-                if row.DTE > min_dte_buy and row.STRIKE_DISTANCE_PCT <= max_strike_distance_pct:
-                    if (
-                        good_call_buy
-                        and row.C_VOLUME > min_volume
-                        # and row.UNDERLYING_LAST > row.STRIKE
-                        and call_ask_price <= current_max_buy_price
-                        and len([x for x in owned_call_options if x["symbol"] == row.C_ID]) == 0
-                    ):
-                        self.logger.info(
-                            f"Buying {buy_contracts_quantity} contracts of '{row.C_ID}' for ${call_ask_price:.2f}"
-                        )
-                        self.__buy_product(
-                            product_id=row.C_ID, asset_class=asset_class, quantity=buy_contracts_quantity
-                        )
-                        available_cash -= call_ask_price
-                        bought_options += 1
-                    elif (
-                        good_put_buy
-                        and row.P_VOLUME > min_volume
-                        # and row.UNDERLYING_LAST < row.STRIKE
-                        and put_ask_price <= current_max_buy_price
-                        and len([x for x in owned_put_options if x["symbol"] == row.P_ID]) == 0
-                    ):
-                        self.logger.info(
-                            f"Buying {buy_contracts_quantity} contracts of '{row.P_ID}' for ${put_ask_price:.2f}"
-                        )
-                        self.__buy_product(
-                            product_id=row.P_ID, asset_class=asset_class, quantity=buy_contracts_quantity
-                        )
-                        available_cash -= put_ask_price
-                        bought_options += 1
-
-                if (bought_options + previous_bought_options) >= max_buy_amount:
-                    break
-
-        self.current_fear_greed_index = current_fear_greed_index
-        self.sold_options = sold_options
-        self.bought_options = bought_options
