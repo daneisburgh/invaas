@@ -2,6 +2,13 @@
 
 
 
+## v1.10.5 (2024-03-01)
+
+### Fix
+
+* fix: update schwab option max buy price and divisor ([`253a24e`](https://github.com/daneisburgh/invaas/commit/253a24edf923f46c5487ff95eeccd3925dddf2cc))
+
+
 ## v1.10.4 (2024-02-29)
 
 ### Chore
