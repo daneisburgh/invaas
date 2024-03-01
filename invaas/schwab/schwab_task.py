@@ -153,11 +153,11 @@ class SchwabTask(Task):
         )
 
         available_cash = self.__get_available_cash_to_buy_options()
-        buy_price_divisor = 4
+        buy_price_divisor = 3
         min_dte_buy = int(min_dte_sell * 2)
         min_volume = 100
         max_strike_distance_pct = 0.02
-        max_buy_price = 500
+        max_buy_price = 1000
         max_buy_amount = 1
         buy_contracts_quantity = 1
         bought_options = 0
