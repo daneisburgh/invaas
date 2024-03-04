@@ -59,6 +59,7 @@ class SchwabTask(Task):
         owned_options, owned_call_options, owned_put_options = self.__get_owned_options()
 
         (
+            current_fear_greed_index_timestamp,
             current_fear_greed_index,
             previous_max_fear_greed_index,
             previous_min_fear_greed_index,
@@ -174,7 +175,11 @@ class SchwabTask(Task):
         self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
         print()
 
-        if owned_options_bought_today < max_buy_amount:
+        if current_fear_greed_index_timestamp < (datetime.now(timezone.utc) - timedelta(minutes=15)):
+            self.logger.info("Fear and greed index not updated recently")
+        elif owned_options_bought_today >= max_buy_amount:
+            self.logger.info("Reached max allowed owned options bought today")
+        else:
             for index, row in df_options_chain.iterrows():
                 call_ask_price = row.C_ASK * 100
                 put_ask_price = row.P_ASK * 100
@@ -270,7 +275,14 @@ class SchwabTask(Task):
             df["fear_greed_index"].rolling(window=historical_periods, min_periods=historical_periods).min()
         )
 
+        current_fear_greed_index_timestamp = df.index[-1]
         current_fear_greed_index = round(df.fear_greed_index.values[-1])
+
+        self.logger.info(
+            f"Current fear greed index timestamp: {current_fear_greed_index_timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+        self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
+
         previous_max_fear_greed_index = round(df.previous_max_fear_greed_index.values[-1])
         previous_min_fear_greed_index = round(df.previous_min_fear_greed_index.values[-1])
 
@@ -286,11 +298,15 @@ class SchwabTask(Task):
             if previous_run_min_fear_greed_index < previous_min_fear_greed_index:
                 previous_min_fear_greed_index = previous_run_min_fear_greed_index
 
-        self.logger.info(f"Current fear greed index: {current_fear_greed_index}")
         self.logger.info(f"Previous max fear greed index: {previous_max_fear_greed_index}")
         self.logger.info(f"Previous min fear greed index: {previous_min_fear_greed_index}")
 
-        return (current_fear_greed_index, previous_max_fear_greed_index, previous_min_fear_greed_index)
+        return (
+            current_fear_greed_index_timestamp,
+            current_fear_greed_index,
+            previous_max_fear_greed_index,
+            previous_min_fear_greed_index,
+        )
 
     def __get_cboe_vix_data(self):
         vix_ticker = "^VIX"
