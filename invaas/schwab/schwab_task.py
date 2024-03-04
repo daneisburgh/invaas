@@ -175,7 +175,7 @@ class SchwabTask(Task):
         self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
         print()
 
-        if current_fear_greed_index_timestamp < (datetime.now(timezone.utc) - timedelta(minutes=15)):
+        if current_fear_greed_index_timestamp < (datetime.now(timezone.utc) - timedelta(minutes=20)):
             self.logger.info("Fear and greed index not updated recently")
         elif owned_options_bought_today >= max_buy_amount:
             self.logger.info("Reached max allowed owned options bought today")
