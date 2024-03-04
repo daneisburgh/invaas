@@ -233,7 +233,7 @@ class SchwabTask(Task):
             return []
 
         previous_run_output = []
-        previous_start_time_ms = (datetime.now(timezone.utc) - timedelta(days=7)).timestamp() * 1000
+        previous_start_time_ms = (datetime.now(timezone.utc) - timedelta(hours=12)).timestamp() * 1000
         previous_job_run_ids = [
             x.run_id
             for x in self.workspace_client.jobs.list_runs(
