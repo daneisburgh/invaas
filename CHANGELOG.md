@@ -2,6 +2,13 @@
 
 
 
+## v1.10.6 (2024-03-04)
+
+### Fix
+
+* fix: add current fear greed index timestamp check ([`746efe5`](https://github.com/daneisburgh/invaas/commit/746efe5272e250b74f694d3beac348756865d56a))
+
+
 ## v1.10.5 (2024-03-01)
 
 ### Fix
