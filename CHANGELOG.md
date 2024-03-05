@@ -2,6 +2,13 @@
 
 
 
+## v1.10.9 (2024-03-05)
+
+### Fix
+
+* fix: update schwab previous run output start time ([`1c217e2`](https://github.com/daneisburgh/invaas/commit/1c217e202e05a81a21b397fb932b9ddaf8563319))
+
+
 ## v1.10.8 (2024-03-04)
 
 ### Fix
