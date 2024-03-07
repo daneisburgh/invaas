@@ -2,6 +2,17 @@
 
 
 
+## v1.11.0 (2024-03-07)
+
+### Feature
+
+* feat: add max loss and min gain to sell option ([`ebf8b39`](https://github.com/daneisburgh/invaas/commit/ebf8b39b88df763158a0c3ed5f24764fca5e4a83))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`988f079`](https://github.com/daneisburgh/invaas/commit/988f0799feab74267d1b452ba43e53bd66556071))
+
+
 ## v1.10.9 (2024-03-05)
 
 ### Fix
