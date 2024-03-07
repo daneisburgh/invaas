@@ -75,38 +75,54 @@ class SchwabTask(Task):
         good_put_buy = current_fear_greed_index <= previous_min_fear_greed_index + fear_greed_index_diff
         min_dte_sell = 7
         sold_options = 0
+        max_loss_pct = -0.1
+        min_gain_pct = 0.1
 
         self.logger.info(f"Buy calls: {good_call_buy}")
         self.logger.info(f"Buy puts: {good_put_buy}")
         self.logger.info(f"Min DTE to sell: {min_dte_sell}")
+        self.logger.info(f"Max loss to sell: {int(max_loss_pct*100)}%")
+        self.logger.info(f"Min gain to sell: {int(min_gain_pct*100)}%")
         print()
 
-        def get_sell_dte(owned_option, current_dte, expire_date):
+        def get_owned_option_transaction(owned_option):
+            return next(
+                transaction
+                for transaction in transaction_history["brokerageTransactions"]
+                if transaction["symbol"] == owned_option["displaySymbol"]
+            )
+
+        def get_sell_dte(current_dte, expire_date, owned_option_transaction):
             purchase_dte = (
                 expire_date
                 - datetime.strptime(
-                    next(
-                        transaction
-                        for transaction in transaction_history["brokerageTransactions"]
-                        if transaction["symbol"] == owned_option["displaySymbol"]
-                    )["transactionDate"],
+                    owned_option_transaction["transactionDate"],
                     "%m/%d/%Y",
                 )
             ).days
             return current_dte < min_dte_sell or (purchase_dte - current_dte) > min_dte_sell
 
         for index, row in df_options_chain.iterrows():
-            call_bid_price = row.C_BID * 100
-            put_bid_price = row.P_BID * 100
             owned_call_option = next((option for option in owned_call_options if option["symbol"] == row.C_ID), None)
             owned_put_option = next((option for option in owned_put_options if option["symbol"] == row.P_ID), None)
 
             if owned_call_option is not None:
-                sell_dte = get_sell_dte(
-                    owned_option=owned_call_option, current_dte=row.DTE, expire_date=row.EXPIRE_DATE
+                self.logger.info(f"Reviewing owned option '{row.C_ID}'")
+                owned_call_option_transaction = get_owned_option_transaction(owned_call_option)
+                call_sell_dte = get_sell_dte(
+                    current_dte=row.DTE,
+                    expire_date=row.EXPIRE_DATE,
+                    owned_option_transaction=owned_call_option_transaction,
                 )
+                self.logger.info(f"Sell option based on DTE: {call_sell_dte}")
+                call_purchase_price = float(owned_call_option["executionPrice"].replace("$", "")) * 100
+                call_bid_price = row.C_BID * 100
+                call_price_pct_diff = (call_bid_price - call_purchase_price) / call_purchase_price
+                self.logger.info(f"Option price diff: {call_price_pct_diff*100:.2f}%")
+                min_call_gain = call_price_pct_diff > min_gain_pct
+                max_call_loss = call_price_pct_diff < max_loss_pct
 
-                if not good_call_buy or sell_dte:
+                if not good_call_buy or call_sell_dte or min_call_gain or max_call_loss:
                     sell_contracts_quantity = int(owned_call_option["shares"])
                     self.logger.info(
                         f"Selling {sell_contracts_quantity} contracts of '{row.C_ID}' for ${call_bid_price:.2f}"
@@ -117,10 +133,25 @@ class SchwabTask(Task):
                         quantity=sell_contracts_quantity,
                     )
                     sold_options += 1
-            elif owned_put_option is not None:
-                sell_dte = get_sell_dte(owned_option=owned_put_option, current_dte=row.DTE, expire_date=row.EXPIRE_DATE)
 
-                if not good_put_buy or sell_dte:
+                print()
+            elif owned_put_option is not None:
+                self.logger.info(f"Reviewing owned option '{row.C_ID}'")
+                owned_put_option_transaction = get_owned_option_transaction(owned_put_option)
+                put_sell_dte = get_sell_dte(
+                    current_dte=row.DTE,
+                    expire_date=row.EXPIRE_DATE,
+                    owned_option_transaction=owned_put_option_transaction,
+                )
+                self.logger.info(f"Sell option based on DTE: {put_sell_dte}")
+                put_purchase_price = float(owned_put_option_transaction["executionPrice"].replace("$", "")) * 100
+                put_bid_price = row.P_BID * 100
+                put_price_pct_diff = (put_bid_price - put_purchase_price) / put_purchase_price
+                self.logger.info(f"Option price diff: {put_price_pct_diff*100:.2f}%")
+                min_put_gain = put_price_pct_diff > min_gain_pct
+                max_put_loss = put_price_pct_diff < max_loss_pct
+
+                if not good_put_buy or put_sell_dte or min_put_gain or max_put_loss:
                     sell_contracts_quantity = int(owned_put_option["shares"])
                     self.logger.info(
                         f"Selling {sell_contracts_quantity} contracts of '{row.P_ID}' for ${put_bid_price:.2f}"
@@ -132,8 +163,9 @@ class SchwabTask(Task):
                     )
                     sold_options += 1
 
+                print()
+
         if sold_options > 0:
-            print()
             time.sleep(10)
 
         df_options_chain = self.__get_df_options_chain(ticker=ticker)
@@ -172,11 +204,12 @@ class SchwabTask(Task):
         self.logger.info(f"Buy contracts quantity: {buy_contracts_quantity}")
         self.logger.info(f"Min DTE to buy: {min_dte_buy}")
         self.logger.info(f"Min volume: {min_volume}")
-        self.logger.info(f"Max strike distiance: {int(max_strike_distance_pct*100)}%")
+        self.logger.info(f"Max strike distance: {int(max_strike_distance_pct*100)}%")
         print()
 
         if current_fear_greed_index_timestamp < (datetime.now(timezone.utc) - timedelta(minutes=20)):
             self.logger.info("Fear and greed index not updated recently")
+        # elif options_bought_today >= max_buy_amount:
         elif owned_options_bought_today >= max_buy_amount:
             self.logger.info("Reached max allowed owned options bought today")
         else:
