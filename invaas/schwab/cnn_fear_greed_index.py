@@ -56,3 +56,10 @@ def get_historical_cnn_fear_greed_index():
 
     fetcher = Fetcher()
     return fetcher()["fear_and_greed_historical"]
+
+
+def get_current_cnn_data():
+    """Returns CNN's Fear & Greed Index."""
+
+    fetcher = Fetcher()
+    return fetcher()
