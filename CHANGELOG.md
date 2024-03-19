@@ -2,6 +2,21 @@
 
 
 
+## v1.11.1 (2024-03-19)
+
+### Chore
+
+* chore: update test notebooks ([`edf8714`](https://github.com/daneisburgh/invaas/commit/edf87142cb4c44fe064a748bdf11046f98b04883))
+
+* chore: add cnn data json to notebooks ([`0250fe3`](https://github.com/daneisburgh/invaas/commit/0250fe372236b0b2aba94fd12866640749d77c3a))
+
+### Fix
+
+* fix: add get current cnn fear and greed index method ([`4cba510`](https://github.com/daneisburgh/invaas/commit/4cba510c78ce1bf8b3c39997e598794d0675e960))
+
+* fix: update schwab cron schedule ([`7b7f6a2`](https://github.com/daneisburgh/invaas/commit/7b7f6a2f32c6d005af94208b505a7c1242a08546))
+
+
 ## v1.11.0 (2024-03-07)
 
 ### Feature
