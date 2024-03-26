@@ -20,7 +20,8 @@ def account_summary():
 
 
 def trade_ticket():
-    return "https://client.schwab.com/app/trade/tom/#/trade"
+    # return "https://client.schwab.com/app/trade/tom/#/trade"
+    return "https://client.schwab.com/app/trade/tom/trade?ShowUN=YES"
 
 
 # New API
