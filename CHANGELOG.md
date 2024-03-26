@@ -2,6 +2,19 @@
 
 
 
+## v1.11.2 (2024-03-26)
+
+### Fix
+
+* fix: schwab authentication ([`c44d9e6`](https://github.com/daneisburgh/invaas/commit/c44d9e6ea43544187e4d0bc0f33e01b2959d686e))
+
+* fix: update schwab trade ticket url ([`69eb53d`](https://github.com/daneisburgh/invaas/commit/69eb53d12d7bbb939e1a89366ccb16ac87507d4e))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`a8ac260`](https://github.com/daneisburgh/invaas/commit/a8ac2603f786dc24a8e95c9f4ff82e533c450d6a))
+
+
 ## v1.11.1 (2024-03-19)
 
 ### Chore
