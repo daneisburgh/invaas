@@ -2,6 +2,17 @@
 
 
 
+## v1.11.3 (2024-03-26)
+
+### Fix
+
+* fix: update schwab job schedule ([`a816f37`](https://github.com/daneisburgh/invaas/commit/a816f37929fd5ffc63ff37bd81a079de9358f48e))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`0c4a888`](https://github.com/daneisburgh/invaas/commit/0c4a8882c117d7adba3783bb2db82c78dbb736f9))
+
+
 ## v1.11.2 (2024-03-26)
 
 ### Fix
