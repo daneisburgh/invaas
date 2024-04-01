@@ -115,7 +115,7 @@ class SchwabTask(Task):
                     owned_option_transaction=owned_call_option_transaction,
                 )
                 self.logger.info(f"Sell option based on DTE: {call_sell_dte}")
-                call_purchase_price = float(owned_call_option["executionPrice"].replace("$", "")) * 100
+                call_purchase_price = float(owned_call_option_transaction["executionPrice"].replace("$", "")) * 100
                 call_bid_price = row.C_BID * 100
                 call_price_pct_diff = (call_bid_price - call_purchase_price) / call_purchase_price
                 self.logger.info(f"Option price diff: {call_price_pct_diff*100:.2f}%")
