@@ -64,7 +64,7 @@ class SessionManager:
         self.headers = await route.request.all_headers()
         await route.continue_()
 
-    async def login(self, username, password):
+    async def login(self, username, password, attempt=1):
         """This function will log the user into schwab using Playwright and saving
         the authentication cookies in the session header.
         :type username: str
@@ -106,7 +106,9 @@ class SessionManager:
         # Submit
         await self.page.frame(name=login_frame).press('[placeholder="Password"]', "Enter")
         await asyncio.sleep(30)
-        await self.page.wait_for_selector("#_txtSymbol")
 
         if self.page.url != urls.trade_ticket():
-            raise Exception("Unable to log in to Schwab")
+            if attempt < 5:
+                await self.login(username, password, (attempt + 1))
+            else:
+                raise Exception("Unable to log in to Schwab")
