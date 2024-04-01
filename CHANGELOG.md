@@ -2,6 +2,17 @@
 
 
 
+## v1.11.4 (2024-03-29)
+
+### Chore
+
+* chore: update option test notebook and data ([`f31c332`](https://github.com/daneisburgh/invaas/commit/f31c332022f76d1c442168c47304a3da16be5608))
+
+### Fix
+
+* fix: update schwab job schedule ([`1985c9b`](https://github.com/daneisburgh/invaas/commit/1985c9b48c72e5afdd9dc42a13a185bf2cb5943e))
+
+
 ## v1.11.3 (2024-03-26)
 
 ### Fix
