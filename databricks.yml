@@ -60,7 +60,8 @@ resources:
       schedule:
         quartz_cron_expression: "0 30 9 ? * MON,TUE,WED,THU,FRI *"
         timezone_id: America/New_York
-        pause_status: ${var.schedule_pause_status}
+        # pause_status: ${var.schedule_pause_status}
+        pause_status: "PAUSED"
       tasks:
         - task_key: schwab
           job_cluster_key: job_cluster
