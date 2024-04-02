@@ -2,6 +2,17 @@
 
 
 
+## v1.11.6 (2024-04-02)
+
+### Fix
+
+* fix: pause schwab job ([`0d18533`](https://github.com/daneisburgh/invaas/commit/0d1853306f2ec3cdfd4e571d544506845c02774a))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`0129914`](https://github.com/daneisburgh/invaas/commit/0129914c557e0f9f9028496616b1ec404aefbe45))
+
+
 ## v1.11.5 (2024-04-01)
 
 ### Fix
