@@ -2,6 +2,19 @@
 
 
 
+## v1.11.5 (2024-04-01)
+
+### Fix
+
+* fix: schwab task owned call option purchase price variable initialization ([`0e84ab0`](https://github.com/daneisburgh/invaas/commit/0e84ab0f254bf4d15a8be2665298adfe895f2c8b))
+
+* fix: add multiple attempts to schwab authentication ([`ade95e2`](https://github.com/daneisburgh/invaas/commit/ade95e2dc19ab6ab4355c0ed99fedcda066c9f42))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`98342b0`](https://github.com/daneisburgh/invaas/commit/98342b0562049c65207775f6c97e76f1dc001bc1))
+
+
 ## v1.11.4 (2024-03-29)
 
 ### Chore
