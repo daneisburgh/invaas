@@ -2,6 +2,13 @@
 
 
 
+## v1.11.7 (2024-04-28)
+
+### Fix
+
+* fix: update coinbase job schedule ([`99787da`](https://github.com/daneisburgh/invaas/commit/99787da86519720a1e4e2002d24c26998a2b8801))
+
+
 ## v1.11.6 (2024-04-02)
 
 ### Fix
