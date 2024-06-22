@@ -10,6 +10,7 @@ from invaas import __version__
 
 PACKAGE_REQUIREMENTS = [
     "databricks-sdk==0.20.0",
+    "numba == 0.59.1",
     "pandas==2.1.3",
     "pandas-ta==0.3.14b",
     "playwright==1.41.0",
@@ -25,9 +26,12 @@ DEV_REQUIREMENTS = [
     "coverage[toml]",
     "delta-spark",
     "ipympl",
+    "ipywidgets",
     "jupyter",
+    "jupyter_contrib_nbextensions",
     "matplotlib",
     "mypy",
+    "notebook",
     "pandarallel",
     "pyspark",
     "pytest",
