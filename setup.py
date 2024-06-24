@@ -18,6 +18,7 @@ PACKAGE_REQUIREMENTS = [
     "pyotp==2.9.0",
     "python-dotenv==1.0.0",
     "python-vipaccess==0.14.1",
+    "robin-stocks==3.1.0",
     "yfinance==0.2.36",
 ]
 
