@@ -15,8 +15,9 @@ def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
     return debit
 
 
-def coveredCall(underlying, sigma, rate, trials, days_to_expiration,
-                closing_days_array, percentage_array, short_strike, short_price):
+def coveredCall(
+    underlying, sigma, rate, trials, days_to_expiration, closing_days_array, percentage_array, short_strike, short_price
+):
 
     for closing_days in closing_days_array:
         if closing_days > days_to_expiration:
@@ -42,17 +43,21 @@ def coveredCall(underlying, sigma, rate, trials, days_to_expiration,
     min_profit = np.array(min_profit)
 
     try:
-        pop, pop_error, avg_dtc, avg_dtc_error = monteCarlo(underlying, rate, sigma, days_to_expiration,
-                                                              closing_days_array, trials,
-                                                              initial_credit, min_profit, strikes, bsm_debit)
+        pop, pop_error, avg_dtc, avg_dtc_error = monteCarlo(
+            underlying,
+            rate,
+            sigma,
+            days_to_expiration,
+            closing_days_array,
+            trials,
+            initial_credit,
+            min_profit,
+            strikes,
+            bsm_debit,
+        )
     except RuntimeError as err:
         print(err.args)
 
-    response = {
-        "pop": pop,
-        "pop_error": pop_error,
-        "avg_dtc": avg_dtc,
-        "avg_dtc_error": avg_dtc_error
-    }
+    response = {"pop": pop, "pop_error": pop_error, "avg_dtc": avg_dtc, "avg_dtc_error": avg_dtc_error}
 
     return response

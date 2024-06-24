@@ -12,8 +12,18 @@ from numba import jit
 # Earnings date and stock splits are not considered.
 
 
-def monteCarlo(underlying, rate, sigma, days_to_expiration, closing_days_array, trials, initial_credit,
-                   min_profit, strikes, bsm_func):
+def monteCarlo(
+    underlying,
+    rate,
+    sigma,
+    days_to_expiration,
+    closing_days_array,
+    trials,
+    initial_credit,
+    min_profit,
+    strikes,
+    bsm_func,
+):
 
     dt = 1 / 365  # 365 calendar days in a year
 
@@ -44,7 +54,7 @@ def monteCarlo(underlying, rate, sigma, days_to_expiration, closing_days_array, 
             W = (dt ** (1 / 2)) * epsilon_cum
 
             # Geometric Brownian Motion
-            signal = (rate - 0.5 * (sigma ** 2)) * t_cum
+            signal = (rate - 0.5 * (sigma**2)) * t_cum
             noise = sigma * W
             y = noise + signal
             stock_price = underlying * np.exp(y)  # Stock price on current day

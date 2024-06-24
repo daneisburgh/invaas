@@ -17,31 +17,39 @@ def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
     return debit
 
 
-def ironCondor(underlying, sigma, rate, trials, days_to_expiration,
-               closing_days_array, percentage_array, put_short_strike,
-               put_short_price, put_long_strike, put_long_price, call_short_strike,
-               call_short_price, call_long_strike, call_long_price):
+def ironCondor(
+    underlying,
+    sigma,
+    rate,
+    trials,
+    days_to_expiration,
+    closing_days_array,
+    percentage_array,
+    put_short_strike,
+    put_short_price,
+    put_long_strike,
+    put_long_price,
+    call_short_strike,
+    call_short_price,
+    call_long_strike,
+    call_long_price,
+):
 
     # Data Verification
     if call_long_price >= call_short_price:
-        raise ValueError("Long call price cannot be greater than or "
-                                                        "equal to Short call price")
+        raise ValueError("Long call price cannot be greater than or " "equal to Short call price")
 
     if call_short_strike >= call_long_strike:
-        raise ValueError("Short call strike cannot be greater than or "
-                                                          "equal to Long call strike")
+        raise ValueError("Short call strike cannot be greater than or " "equal to Long call strike")
 
     if put_long_price >= put_short_price:
-        raise ValueError("Long put price cannot be greater than or "
-                                                       "equal to Short put price")
+        raise ValueError("Long put price cannot be greater than or " "equal to Short put price")
 
     if put_short_strike <= put_long_strike:
-        raise ValueError("Short put strike cannot be less than or "
-                                                         "equal to Long put strike")
+        raise ValueError("Short put strike cannot be less than or " "equal to Long put strike")
 
     if call_short_strike < put_short_strike:
-        raise ValueError("Short call strike cannot be less than "
-                                                          "Short put strike")
+        raise ValueError("Short call strike cannot be less than " "Short put strike")
 
     for closing_days in closing_days_array:
         if closing_days > days_to_expiration:
@@ -64,17 +72,21 @@ def ironCondor(underlying, sigma, rate, trials, days_to_expiration,
     min_profit = np.array(min_profit)
 
     try:
-        pop, pop_error, avg_dtc, avg_dtc_error = monteCarlo(underlying, rate, sigma, days_to_expiration,
-                                                              closing_days_array, trials,
-                                                              initial_credit, min_profit, strikes, bsm_debit)
+        pop, pop_error, avg_dtc, avg_dtc_error = monteCarlo(
+            underlying,
+            rate,
+            sigma,
+            days_to_expiration,
+            closing_days_array,
+            trials,
+            initial_credit,
+            min_profit,
+            strikes,
+            bsm_debit,
+        )
     except RuntimeError as err:
         print(err.args)
 
-    response = {
-        "pop": pop,
-        "pop_error": pop_error,
-        "avg_dtc": avg_dtc,
-        "avg_dtc_error": avg_dtc_error
-    }
+    response = {"pop": pop, "pop_error": pop_error, "avg_dtc": avg_dtc, "avg_dtc_error": avg_dtc_error}
 
     return response
