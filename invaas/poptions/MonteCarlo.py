@@ -24,7 +24,6 @@ def monteCarlo(
     strikes,
     bsm_func,
 ):
-
     dt = 1 / 365  # 365 calendar days in a year
 
     length = len(closing_days_array)
@@ -40,7 +39,6 @@ def monteCarlo(
     indices = [0] * length
 
     for c in range(trials):
-
         epsilon_cum = 0
         t_cum = 0
 
@@ -49,7 +47,6 @@ def monteCarlo(
 
         # +1 added to account for first day. sim_prices[0,...] = underlying price.
         for r in range(max_closing_days + 1):
-
             # Brownian Motion
             W = (dt ** (1 / 2)) * epsilon_cum
 

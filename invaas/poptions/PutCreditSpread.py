@@ -27,7 +27,6 @@ def putCreditSpread(
     long_strike,
     long_price,
 ):
-
     # Data Verification
     if long_price >= short_price:
         raise ValueError("Long price cannot be greater than or equal to Short price")

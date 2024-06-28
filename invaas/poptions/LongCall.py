@@ -17,7 +17,6 @@ def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
 def longCall(
     underlying, sigma, rate, trials, days_to_expiration, closing_days_array, multiple_array, long_strike, long_price
 ):
-
     for closing_days in closing_days_array:
         if closing_days > days_to_expiration:
             raise ValueError("Closing days cannot be beyond Days To Expiration.")

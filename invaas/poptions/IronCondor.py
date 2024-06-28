@@ -34,7 +34,6 @@ def ironCondor(
     call_long_strike,
     call_long_price,
 ):
-
     # Data Verification
     if call_long_price >= call_short_price:
         raise ValueError("Long call price cannot be greater than or " "equal to Short call price")

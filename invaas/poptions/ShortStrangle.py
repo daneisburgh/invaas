@@ -27,7 +27,6 @@ def shortStrangle(
     put_short_strike,
     put_short_price,
 ):
-
     # Data Verification
     if call_short_strike < put_short_strike:
         raise ValueError("Call Strike cannot be less than Put Strike")
