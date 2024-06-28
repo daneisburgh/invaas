@@ -1,21 +1,20 @@
 from numba import jit
-from invaas.poptions.MonteCarlo import monteCarlo
+from invaas.schwab.poptions.MonteCarlo import monteCarlo
 import time
-from invaas.poptions.BlackScholes import blackScholesCall
+from invaas.schwab.poptions.BlackScholes import blackScholesPut
 import numpy as np
 
 
 def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
-    P_short_calls = blackScholesCall(sim_price, strikes[0], rate, time_fraction, sigma)
-    P_long_calls = blackScholesCall(sim_price, strikes[1], rate, time_fraction, sigma)
+    P_short_puts = blackScholesPut(sim_price, strikes[0], rate, time_fraction, sigma)
+    P_long_puts = blackScholesPut(sim_price, strikes[1], rate, time_fraction, sigma)
 
-    credit = P_long_calls - P_short_calls
-    debit = -credit
+    debit = P_short_puts - P_long_puts
 
     return debit
 
 
-def callDebitSpread(
+def putCreditSpread(
     underlying,
     sigma,
     rate,
@@ -29,8 +28,8 @@ def callDebitSpread(
     long_price,
 ):
     # Data Verification
-    if long_price <= short_price:
-        raise ValueError("Long price cannot be less than or equal to Short price")
+    if long_price >= short_price:
+        raise ValueError("Long price cannot be greater than or equal to Short price")
 
     if short_strike <= long_strike:
         raise ValueError("Short strike cannot be less than or equal to Long strike")
@@ -43,12 +42,10 @@ def callDebitSpread(
         raise ValueError("closing_days_array and percentage_array sizes must be equal.")
 
     # SIMULATION
-    initial_debit = long_price - short_price  # Debit paid from opening trade
-    initial_credit = -1 * initial_debit
+    initial_credit = short_price - long_price  # Credit received from opening trade
 
     percentage_array = [x / 100 for x in percentage_array]
-    max_profit = short_strike - long_strike - initial_debit
-    min_profit = [max_profit * x for x in percentage_array]
+    min_profit = [initial_credit * x for x in percentage_array]
 
     strikes = [short_strike, long_strike]
 

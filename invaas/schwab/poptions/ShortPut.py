@@ -1,7 +1,7 @@
 from numba import jit
-from invaas.poptions.MonteCarlo import monteCarlo
+from invaas.schwab.poptions.MonteCarlo import monteCarlo
 import time
-from invaas.poptions.BlackScholes import blackScholesPut
+from invaas.schwab.poptions.BlackScholes import blackScholesPut
 import numpy as np
 
 

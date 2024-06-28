@@ -1,23 +1,39 @@
 from numba import jit
-from invaas.poptions.MonteCarlo import monteCarlo
+from invaas.schwab.poptions.MonteCarlo import monteCarlo
 import time
-from invaas.poptions.BlackScholes import blackScholesCall
+from invaas.schwab.poptions.BlackScholes import blackScholesCall
 import numpy as np
 
 
 def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
     P_short_calls = blackScholesCall(sim_price, strikes[0], rate, time_fraction, sigma)
+    P_long_calls = blackScholesCall(sim_price, strikes[1], rate, time_fraction, sigma)
 
-    debit = P_short_calls
-    credit = sim_price
-    debit = debit - credit
+    debit = P_short_calls - P_long_calls
 
     return debit
 
 
-def coveredCall(
-    underlying, sigma, rate, trials, days_to_expiration, closing_days_array, percentage_array, short_strike, short_price
+def callCreditSpread(
+    underlying,
+    sigma,
+    rate,
+    trials,
+    days_to_expiration,
+    closing_days_array,
+    percentage_array,
+    short_strike,
+    short_price,
+    long_strike,
+    long_price,
 ):
+    # Data Verification
+    if long_price >= short_price:
+        raise ValueError("Long price cannot be greater than or equal to Short price")
+
+    if short_strike >= long_strike:
+        raise ValueError("Short strike cannot be greater than or equal to Long strike")
+
     for closing_days in closing_days_array:
         if closing_days > days_to_expiration:
             raise ValueError("Closing days cannot be beyond Days To Expiration.")
@@ -26,15 +42,12 @@ def coveredCall(
         raise ValueError("closing_days_array and percentage_array sizes must be equal.")
 
     # SIMULATION
-    initial_credit = short_price  # Credit received from opening trade
-    stock_debit = underlying  # Assuming current underlying price = purchase price
-    initial_credit = initial_credit - stock_debit
+    initial_credit = short_price - long_price  # Credit received from opening trade
 
     percentage_array = [x / 100 for x in percentage_array]
-    max_profit = short_price + (short_strike - underlying)
-    min_profit = [max_profit * x for x in percentage_array]
+    min_profit = [initial_credit * x for x in percentage_array]
 
-    strikes = [short_strike]
+    strikes = [short_strike, long_strike]
 
     # LISTS TO NUMPY ARRAYS CUZ NUMBA HATES LISTS
     strikes = np.array(strikes)

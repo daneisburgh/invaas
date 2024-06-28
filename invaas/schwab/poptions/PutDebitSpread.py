@@ -1,36 +1,56 @@
 from numba import jit
-from invaas.poptions.MonteCarlo import monteCarlo
+from invaas.schwab.poptions.MonteCarlo import monteCarlo
 import time
-from invaas.poptions.BlackScholes import blackScholesCall
+from invaas.schwab.poptions.BlackScholes import blackScholesPut
 import numpy as np
 
 
 def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
-    P_long_calls = blackScholesCall(sim_price, strikes[0], rate, time_fraction, sigma)
+    P_short_puts = blackScholesPut(sim_price, strikes[0], rate, time_fraction, sigma)
+    P_long_puts = blackScholesPut(sim_price, strikes[1], rate, time_fraction, sigma)
 
-    credit = P_long_calls
+    credit = P_long_puts - P_short_puts
     debit = -credit
 
     return debit
 
 
-def longCall(
-    underlying, sigma, rate, trials, days_to_expiration, closing_days_array, multiple_array, long_strike, long_price
+def putDebitSpread(
+    underlying,
+    sigma,
+    rate,
+    trials,
+    days_to_expiration,
+    closing_days_array,
+    percentage_array,
+    short_strike,
+    short_price,
+    long_strike,
+    long_price,
 ):
+    # Data Verification
+    if long_price <= short_price:
+        raise ValueError("Long price cannot be less than or equal to Short price")
+
+    if short_strike >= long_strike:
+        raise ValueError("Short strike cannot be greater than or equal to Long strike")
+
     for closing_days in closing_days_array:
         if closing_days > days_to_expiration:
             raise ValueError("Closing days cannot be beyond Days To Expiration.")
 
-    if len(closing_days_array) != len(multiple_array):
+    if len(closing_days_array) != len(percentage_array):
         raise ValueError("closing_days_array and percentage_array sizes must be equal.")
 
     # SIMULATION
-    initial_debit = long_price  # Debit paid from opening trade
+    initial_debit = long_price - short_price  # Debit paid from opening trade
     initial_credit = -1 * initial_debit
 
-    min_profit = [initial_debit * x for x in multiple_array]
+    percentage_array = [x / 100 for x in percentage_array]
+    max_profit = long_strike - short_strike - initial_debit
+    min_profit = [max_profit * x for x in percentage_array]
 
-    strikes = [long_strike]
+    strikes = [short_strike, long_strike]
 
     # LISTS TO NUMPY ARRAYS CUZ NUMBA HATES LISTS
     strikes = np.array(strikes)

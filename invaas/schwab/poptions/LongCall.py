@@ -1,20 +1,20 @@
 from numba import jit
-from invaas.poptions.MonteCarlo import monteCarlo
+from invaas.schwab.poptions.MonteCarlo import monteCarlo
 import time
-from invaas.poptions.BlackScholes import blackScholesPut
+from invaas.schwab.poptions.BlackScholes import blackScholesCall
 import numpy as np
 
 
 def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
-    P_long_puts = blackScholesPut(sim_price, strikes[0], rate, time_fraction, sigma)
+    P_long_calls = blackScholesCall(sim_price, strikes[0], rate, time_fraction, sigma)
 
-    credit = P_long_puts
+    credit = P_long_calls
     debit = -credit
 
     return debit
 
 
-def longPut(
+def longCall(
     underlying, sigma, rate, trials, days_to_expiration, closing_days_array, multiple_array, long_strike, long_price
 ):
     for closing_days in closing_days_array:
@@ -22,7 +22,7 @@ def longPut(
             raise ValueError("Closing days cannot be beyond Days To Expiration.")
 
     if len(closing_days_array) != len(multiple_array):
-        raise ValueError("closing_days_array and multiple_array sizes must be equal.")
+        raise ValueError("closing_days_array and percentage_array sizes must be equal.")
 
     # SIMULATION
     initial_debit = long_price  # Debit paid from opening trade

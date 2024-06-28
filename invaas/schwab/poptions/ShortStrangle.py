@@ -1,23 +1,20 @@
-from invaas.poptions.BlackScholes import blackScholesPut, blackScholesCall
 from numba import jit
-from invaas.poptions.MonteCarlo import monteCarlo
-import numpy as np
+from invaas.schwab.poptions.MonteCarlo import monteCarlo
 import time
+from invaas.schwab.poptions.BlackScholes import blackScholesCall, blackScholesPut
+import numpy as np
 
 
 def bsm_debit(sim_price, strikes, rate, time_fraction, sigma):
     P_short_calls = blackScholesCall(sim_price, strikes[0], rate, time_fraction, sigma)
-    P_long_calls = blackScholesCall(sim_price, strikes[1], rate, time_fraction, sigma)
+    P_short_puts = blackScholesPut(sim_price, strikes[1], rate, time_fraction, sigma)
 
-    P_short_puts = blackScholesPut(sim_price, strikes[2], rate, time_fraction, sigma)
-    P_long_puts = blackScholesPut(sim_price, strikes[3], rate, time_fraction, sigma)
-
-    debit = P_short_calls - P_long_calls + P_short_puts - P_long_puts
+    debit = P_short_calls + P_short_puts
 
     return debit
 
 
-def ironCondor(
+def shortStrangle(
     underlying,
     sigma,
     rate,
@@ -25,30 +22,14 @@ def ironCondor(
     days_to_expiration,
     closing_days_array,
     percentage_array,
-    put_short_strike,
-    put_short_price,
-    put_long_strike,
-    put_long_price,
     call_short_strike,
     call_short_price,
-    call_long_strike,
-    call_long_price,
+    put_short_strike,
+    put_short_price,
 ):
     # Data Verification
-    if call_long_price >= call_short_price:
-        raise ValueError("Long call price cannot be greater than or " "equal to Short call price")
-
-    if call_short_strike >= call_long_strike:
-        raise ValueError("Short call strike cannot be greater than or " "equal to Long call strike")
-
-    if put_long_price >= put_short_price:
-        raise ValueError("Long put price cannot be greater than or " "equal to Short put price")
-
-    if put_short_strike <= put_long_strike:
-        raise ValueError("Short put strike cannot be less than or " "equal to Long put strike")
-
     if call_short_strike < put_short_strike:
-        raise ValueError("Short call strike cannot be less than " "Short put strike")
+        raise ValueError("Call Strike cannot be less than Put Strike")
 
     for closing_days in closing_days_array:
         if closing_days > days_to_expiration:
@@ -58,12 +39,12 @@ def ironCondor(
         raise ValueError("closing_days_array and percentage_array sizes must be equal.")
 
     # SIMULATION
-    initial_credit = put_short_price - put_long_price + call_short_price - call_long_price
+    initial_credit = call_short_price + put_short_price  # Credit received from opening trade
 
     percentage_array = [x / 100 for x in percentage_array]
     min_profit = [initial_credit * x for x in percentage_array]
 
-    strikes = [call_short_strike, call_long_strike, put_short_strike, put_long_strike]
+    strikes = [call_short_strike, put_short_strike]
 
     # LISTS TO NUMPY ARRAYS CUZ NUMBA HATES LISTS
     strikes = np.array(strikes)
