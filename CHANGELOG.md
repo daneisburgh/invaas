@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v1.12.1 (2024-08-08)
+
+### Fix
+
+* fix: pause coinbase job ([`5834083`](https://github.com/daneisburgh/invaas/commit/583408388d5e04e3e240ea874dce49b0a84f54a4))
+
+### Refactor
+
+* refactor: move poptions to schwab ([`e7e62cc`](https://github.com/daneisburgh/invaas/commit/e7e62cc57d8817bb91c9ef9c6501a8cddad0d8e8))
+
+### Style
+
+* style: format files ([`7741c83`](https://github.com/daneisburgh/invaas/commit/7741c8382c91aa73e56d46b8eb1a737aeeaca497))
+
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`90b2e27`](https://github.com/daneisburgh/invaas/commit/90b2e279ec8169ce71c4953fa9b787dfd1785fae))
+
 ## v1.12.0 (2024-06-24)
 
 ### Chore
@@ -13,6 +31,10 @@
 * chore: update requirements ([`4850224`](https://github.com/daneisburgh/invaas/commit/4850224a8a40aae85d1f37b3377b776eb15291f6))
 
 * chore: update test notebooks ([`698a1bb`](https://github.com/daneisburgh/invaas/commit/698a1bb007757f1063e3d82367dfbec8d25220e1))
+
+### Documentation
+
+* docs: add poptions source comment ([`b526a67`](https://github.com/daneisburgh/invaas/commit/b526a67f3cb0069d81c86f4bd0698e28f8131d97))
 
 ### Feature
 
@@ -30,10 +52,6 @@
 
 ## v1.11.6 (2024-04-02)
 
-### Fix
-
-* fix: pause schwab job ([`0d18533`](https://github.com/daneisburgh/invaas/commit/0d1853306f2ec3cdfd4e571d544506845c02774a))
-
 ### Unknown
 
 * Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`0129914`](https://github.com/daneisburgh/invaas/commit/0129914c557e0f9f9028496616b1ec404aefbe45))
@@ -42,9 +60,7 @@
 
 ### Fix
 
-* fix: schwab task owned call option purchase price variable initialization ([`0e84ab0`](https://github.com/daneisburgh/invaas/commit/0e84ab0f254bf4d15a8be2665298adfe895f2c8b))
-
-* fix: add multiple attempts to schwab authentication ([`ade95e2`](https://github.com/daneisburgh/invaas/commit/ade95e2dc19ab6ab4355c0ed99fedcda066c9f42))
+* fix: pause schwab job ([`0d18533`](https://github.com/daneisburgh/invaas/commit/0d1853306f2ec3cdfd4e571d544506845c02774a))
 
 ### Unknown
 
@@ -58,13 +74,13 @@
 
 ### Fix
 
+* fix: schwab task owned call option purchase price variable initialization ([`0e84ab0`](https://github.com/daneisburgh/invaas/commit/0e84ab0f254bf4d15a8be2665298adfe895f2c8b))
+
+* fix: add multiple attempts to schwab authentication ([`ade95e2`](https://github.com/daneisburgh/invaas/commit/ade95e2dc19ab6ab4355c0ed99fedcda066c9f42))
+
 * fix: update schwab job schedule ([`1985c9b`](https://github.com/daneisburgh/invaas/commit/1985c9b48c72e5afdd9dc42a13a185bf2cb5943e))
 
 ## v1.11.3 (2024-03-26)
-
-### Fix
-
-* fix: update schwab job schedule ([`a816f37`](https://github.com/daneisburgh/invaas/commit/a816f37929fd5ffc63ff37bd81a079de9358f48e))
 
 ### Unknown
 
@@ -74,9 +90,7 @@
 
 ### Fix
 
-* fix: schwab authentication ([`c44d9e6`](https://github.com/daneisburgh/invaas/commit/c44d9e6ea43544187e4d0bc0f33e01b2959d686e))
-
-* fix: update schwab trade ticket url ([`69eb53d`](https://github.com/daneisburgh/invaas/commit/69eb53d12d7bbb939e1a89366ccb16ac87507d4e))
+* fix: update schwab job schedule ([`a816f37`](https://github.com/daneisburgh/invaas/commit/a816f37929fd5ffc63ff37bd81a079de9358f48e))
 
 ### Unknown
 
@@ -92,21 +106,25 @@
 
 ### Fix
 
+* fix: schwab authentication ([`c44d9e6`](https://github.com/daneisburgh/invaas/commit/c44d9e6ea43544187e4d0bc0f33e01b2959d686e))
+
+* fix: update schwab trade ticket url ([`69eb53d`](https://github.com/daneisburgh/invaas/commit/69eb53d12d7bbb939e1a89366ccb16ac87507d4e))
+
 * fix: add get current cnn fear and greed index method ([`4cba510`](https://github.com/daneisburgh/invaas/commit/4cba510c78ce1bf8b3c39997e598794d0675e960))
 
 * fix: update schwab cron schedule ([`7b7f6a2`](https://github.com/daneisburgh/invaas/commit/7b7f6a2f32c6d005af94208b505a7c1242a08546))
 
 ## v1.11.0 (2024-03-07)
 
-### Feature
-
-* feat: add max loss and min gain to sell option ([`ebf8b39`](https://github.com/daneisburgh/invaas/commit/ebf8b39b88df763158a0c3ed5f24764fca5e4a83))
-
 ### Unknown
 
 * Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`988f079`](https://github.com/daneisburgh/invaas/commit/988f0799feab74267d1b452ba43e53bd66556071))
 
 ## v1.10.9 (2024-03-05)
+
+### Feature
+
+* feat: add max loss and min gain to sell option ([`ebf8b39`](https://github.com/daneisburgh/invaas/commit/ebf8b39b88df763158a0c3ed5f24764fca5e4a83))
 
 ### Fix
 
@@ -138,24 +156,6 @@
 
 ## v1.10.4 (2024-02-29)
 
-### Chore
-
-* chore: update options test notebook ([`eb7a566`](https://github.com/daneisburgh/invaas/commit/eb7a566631edc5ea86d37a9ccce5970fc9df6cd2))
-
-* chore: update notebook sample data ([`6f044fb`](https://github.com/daneisburgh/invaas/commit/6f044fbc3204eb1a3ff427e05b79f6953bc05cc0))
-
-### Fix
-
-* fix: update previous bought and owned option logic ([`9e0bac2`](https://github.com/daneisburgh/invaas/commit/9e0bac267958cf19bcb2e4fcfd88266dc19dd652))
-
-* fix: add coinbase job base parameters ([`b1308be`](https://github.com/daneisburgh/invaas/commit/b1308be797e7c889807d3d6aed1c0f146d88afa8))
-
-### Refactor
-
-* refactor: remove unused import from schwab notebook ([`ff20763`](https://github.com/daneisburgh/invaas/commit/ff207633dd636ba9330af1db2385a247acf0f42a))
-
-* refactor: schwab notebook and task ([`9541923`](https://github.com/daneisburgh/invaas/commit/95419235cb8dedfea792e98380a1870de062523f))
-
 ### Unknown
 
 * Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`c082e90`](https://github.com/daneisburgh/invaas/commit/c082e90c60e9a2860169f14869db57319136359b))
@@ -164,9 +164,17 @@
 
 ### Chore
 
+* chore: update options test notebook ([`eb7a566`](https://github.com/daneisburgh/invaas/commit/eb7a566631edc5ea86d37a9ccce5970fc9df6cd2))
+
+* chore: update notebook sample data ([`6f044fb`](https://github.com/daneisburgh/invaas/commit/6f044fbc3204eb1a3ff427e05b79f6953bc05cc0))
+
 * chore: update options test notebook ([`18c2cb6`](https://github.com/daneisburgh/invaas/commit/18c2cb6d2808b81c002f589d0d09d934c610bbf8))
 
 ### Fix
+
+* fix: update previous bought and owned option logic ([`9e0bac2`](https://github.com/daneisburgh/invaas/commit/9e0bac267958cf19bcb2e4fcfd88266dc19dd652))
+
+* fix: add coinbase job base parameters ([`b1308be`](https://github.com/daneisburgh/invaas/commit/b1308be797e7c889807d3d6aed1c0f146d88afa8))
 
 * fix: update schwab bought options logic ([`9b800ce`](https://github.com/daneisburgh/invaas/commit/9b800ce2949068d30bcb1353a272ddad4a31801f))
 
@@ -174,13 +182,13 @@
 
 ### Refactor
 
+* refactor: remove unused import from schwab notebook ([`ff20763`](https://github.com/daneisburgh/invaas/commit/ff207633dd636ba9330af1db2385a247acf0f42a))
+
+* refactor: schwab notebook and task ([`9541923`](https://github.com/daneisburgh/invaas/commit/95419235cb8dedfea792e98380a1870de062523f))
+
 * refactor: update schwab logging ([`ebc2530`](https://github.com/daneisburgh/invaas/commit/ebc253000ae64fcdede396bd66cd964eaac704bf))
 
 ## v1.10.2 (2024-02-28)
-
-### Fix
-
-* fix: update schwab schedule ([`1acde2e`](https://github.com/daneisburgh/invaas/commit/1acde2e24e01cfbeb8d4373908764b2cc74cf36b))
 
 ### Unknown
 
@@ -189,6 +197,8 @@
 ## v1.10.1 (2024-02-28)
 
 ### Fix
+
+* fix: update schwab schedule ([`1acde2e`](https://github.com/daneisburgh/invaas/commit/1acde2e24e01cfbeb8d4373908764b2cc74cf36b))
 
 * fix: update schwab task option logic and logging ([`a6e9514`](https://github.com/daneisburgh/invaas/commit/a6e951410b22242ee32afd0768bd5daa62d3cabe))
 
@@ -220,10 +230,6 @@
 
 ## v1.9.4 (2024-02-20)
 
-### Fix
-
-* fix: schwab task buy product usage ([`416538f`](https://github.com/daneisburgh/invaas/commit/416538fadedac4350ed1ac9011407a0f9f7364bb))
-
 ### Unknown
 
 * Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`84d7241`](https://github.com/daneisburgh/invaas/commit/84d724197106fcb4bc759c3e5e6ed833074263a7))
@@ -231,6 +237,8 @@
 ## v1.9.3 (2024-02-20)
 
 ### Fix
+
+* fix: schwab task buy product usage ([`416538f`](https://github.com/daneisburgh/invaas/commit/416538fadedac4350ed1ac9011407a0f9f7364bb))
 
 * fix: update fear and greed index historical period ([`06dc392`](https://github.com/daneisburgh/invaas/commit/06dc3920d30e041ac596274022f7e3468cb5828e))
 
@@ -254,6 +262,12 @@
 
 ## v1.9.0 (2024-02-13)
 
+### Unknown
+
+* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`2d22586`](https://github.com/daneisburgh/invaas/commit/2d2258676f1c76a4b116255a8206be41ad5b5ef4))
+
+## v1.8.1 (2024-02-12)
+
 ### Build
 
 * build: update schwab job schedule ([`8a6c957`](https://github.com/daneisburgh/invaas/commit/8a6c957e838d35d5dc16112b508487141474746d))
@@ -264,27 +278,13 @@
 
 ### Unknown
 
-* Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`2d22586`](https://github.com/daneisburgh/invaas/commit/2d2258676f1c76a4b116255a8206be41ad5b5ef4))
-
-## v1.8.1 (2024-02-12)
-
-### Fix
-
-* fix: update buy contracts quantity logging ([`8f0af90`](https://github.com/daneisburgh/invaas/commit/8f0af90b31edfb57970595c75fe5f708a00d3173))
-
-### Unknown
-
 * Merge branch &#39;main&#39; of https://github.com/daneisburgh/invaas ([`ee9dd21`](https://github.com/daneisburgh/invaas/commit/ee9dd211e45ea362961acb88e9393ad4b24759d0))
 
 ## v1.8.0 (2024-02-12)
 
-### Chore
+### Fix
 
-* chore: update options historical test notebook ([`72fc8b0`](https://github.com/daneisburgh/invaas/commit/72fc8b0d8312155df555fda6143216a8c2985f6d))
-
-### Feature
-
-* feat: update option trading logic in schwab task ([`130203d`](https://github.com/daneisburgh/invaas/commit/130203d204482f92d7ecc26495cb6b93ec703503))
+* fix: update buy contracts quantity logging ([`8f0af90`](https://github.com/daneisburgh/invaas/commit/8f0af90b31edfb57970595c75fe5f708a00d3173))
 
 ### Unknown
 
@@ -294,11 +294,17 @@
 
 ### Chore
 
+* chore: update options historical test notebook ([`72fc8b0`](https://github.com/daneisburgh/invaas/commit/72fc8b0d8312155df555fda6143216a8c2985f6d))
+
 * chore: update options historical test notebook ([`2be6ed4`](https://github.com/daneisburgh/invaas/commit/2be6ed48ca77b35fb5e0854282ef639ba1361f68))
 
 * chore: add multiple options historical test notebook ([`c2bb873`](https://github.com/daneisburgh/invaas/commit/c2bb873267b55f2ed46d9c165512f74164ea5c51))
 
 * chore: update options test notebook ([`055e4cf`](https://github.com/daneisburgh/invaas/commit/055e4cf9ac506f6d9570d5ad35a3f68520bfe5b0))
+
+### Feature
+
+* feat: update option trading logic in schwab task ([`130203d`](https://github.com/daneisburgh/invaas/commit/130203d204482f92d7ecc26495cb6b93ec703503))
 
 ### Fix
 
@@ -326,17 +332,9 @@
 
 ## v1.7.1 (2024-02-06)
 
-### Chore
-
-* chore: update options test notebook ([`e71fe6e`](https://github.com/daneisburgh/invaas/commit/e71fe6e08144d5c4e5b5f7343fe13bc6e95daf31))
-
 ### Ci
 
 * ci: update release workflow ([`e0d0930`](https://github.com/daneisburgh/invaas/commit/e0d0930dbb23373c80158832d51193b638bad9f3))
-
-### Fix
-
-* fix: update schwab fear greed index rounding ([`1c081f4`](https://github.com/daneisburgh/invaas/commit/1c081f4986492fbf0b62e533a5b174ade7644cc9))
 
 ### Unknown
 
@@ -346,6 +344,8 @@
 
 ### Chore
 
+* chore: update options test notebook ([`e71fe6e`](https://github.com/daneisburgh/invaas/commit/e71fe6e08144d5c4e5b5f7343fe13bc6e95daf31))
+
 * chore: update options test notebook ([`35b01a1`](https://github.com/daneisburgh/invaas/commit/35b01a129ee9259863e47c045cb2e93d8aac48da))
 
 ### Feature
@@ -353,6 +353,8 @@
 * feat: add initial conditional to trade schwab mutual fund assets ([`fd506ce`](https://github.com/daneisburgh/invaas/commit/fd506ce10fac2e0517de22d82ee59d65b5016351))
 
 ### Fix
+
+* fix: update schwab fear greed index rounding ([`1c081f4`](https://github.com/daneisburgh/invaas/commit/1c081f4986492fbf0b62e533a5b174ade7644cc9))
 
 * fix: update fear and greed index rounding ([`5f5b506`](https://github.com/daneisburgh/invaas/commit/5f5b506681038ef6edf5c8e81d9376f69446822f))
 
@@ -374,8 +376,6 @@
 
 * chore: update test notebooks ([`c94989f`](https://github.com/daneisburgh/invaas/commit/c94989fd2299c9cbe6e0590562b3205f5ba6c0e6))
 
-* chore: update option historical test notebook ([`905de1a`](https://github.com/daneisburgh/invaas/commit/905de1a9bb76703a165623b230ee33ef55ac4921))
-
 ### Feature
 
 * feat: add methods to get schwab net worth and cash to buy stocks and options ([`223bc08`](https://github.com/daneisburgh/invaas/commit/223bc08b627e6927b7475cd94dea60ba9f3c9fe5))
@@ -383,8 +383,6 @@
 ### Fix
 
 * fix: update buy put option product id ([`cf56534`](https://github.com/daneisburgh/invaas/commit/cf56534a146e2e208fcde3be8f76d2fbf4c3e73c))
-
-* fix: sort options chain and set max bought options ([`ceaf753`](https://github.com/daneisburgh/invaas/commit/ceaf753ee05a698117649dbd918722fab2f9f807))
 
 ### Refactor
 
@@ -403,6 +401,8 @@
 ## v1.4.0 (2024-01-31)
 
 ### Chore
+
+* chore: update option historical test notebook ([`905de1a`](https://github.com/daneisburgh/invaas/commit/905de1a9bb76703a165623b230ee33ef55ac4921))
 
 * chore: update test notebooks ([`8c45ef2`](https://github.com/daneisburgh/invaas/commit/8c45ef2132134011dddc952c8879490c4790f2a2))
 
@@ -433,6 +433,10 @@
 * feat: update trade to handle options and add get balance method ([`f040aa9`](https://github.com/daneisburgh/invaas/commit/f040aa97f3b7d1e6c88db02dc4f1439c98d4fe5d))
 
 * feat: add balance positions url ([`1652b0c`](https://github.com/daneisburgh/invaas/commit/1652b0c310806b70248426289e5aef0d7ea011ea))
+
+### Fix
+
+* fix: sort options chain and set max bought options ([`ceaf753`](https://github.com/daneisburgh/invaas/commit/ceaf753ee05a698117649dbd918722fab2f9f807))
 
 ### Style
 
@@ -566,14 +570,6 @@
 
 * chore: update gitignore ([`60f1ff4`](https://github.com/daneisburgh/invaas/commit/60f1ff4a17da70d1b61ab5bc6f0525d1d203cee9))
 
-* chore: update gitignore ([`b3b423c`](https://github.com/daneisburgh/invaas/commit/b3b423ce249cf8810750f61f222444c4bae82624))
-
-* chore: add notebooks ([`4839dce`](https://github.com/daneisburgh/invaas/commit/4839dce6fc41f6def583db28c544e26f5c145f5d))
-
-* chore: add historical cnn fear greed index data for testing ([`8393414`](https://github.com/daneisburgh/invaas/commit/8393414517938d526d77dece0fdddc429bbd532b))
-
-* chore: remove notebooks ([`416731c`](https://github.com/daneisburgh/invaas/commit/416731c1feab6132eaf09783afa3ee1e1c68d536))
-
 ### Ci
 
 * ci: temporarily disable type check ([`75639a9`](https://github.com/daneisburgh/invaas/commit/75639a92c9c733f6ba6e2f9e85f663de764b5e22))
@@ -593,6 +589,14 @@
 * Merge branch &#39;main&#39; into develop ([`42d9ee2`](https://github.com/daneisburgh/invaas/commit/42d9ee25a40745bbd057f3a59a8ec9e545527b6d))
 
 ## v1.2.1 (2023-12-21)
+
+### Chore
+
+* chore: add notebooks ([`4839dce`](https://github.com/daneisburgh/invaas/commit/4839dce6fc41f6def583db28c544e26f5c145f5d))
+
+* chore: add historical cnn fear greed index data for testing ([`8393414`](https://github.com/daneisburgh/invaas/commit/8393414517938d526d77dece0fdddc429bbd532b))
+
+* chore: remove notebooks ([`416731c`](https://github.com/daneisburgh/invaas/commit/416731c1feab6132eaf09783afa3ee1e1c68d536))
 
 ### Fix
 
@@ -703,6 +707,8 @@
 * chore: add notebook utils ([`03869ee`](https://github.com/daneisburgh/invaas/commit/03869ee4b2f1adf32ec4c2cdb6125bc200cba3c6))
 
 * chore: update backtesting notebooks ([`a29f37a`](https://github.com/daneisburgh/invaas/commit/a29f37adf5f1429c035777334881e4455253c6ff))
+
+* chore: update gitignore ([`b3b423c`](https://github.com/daneisburgh/invaas/commit/b3b423ce249cf8810750f61f222444c4bae82624))
 
 * chore: add backtesting notebooks ([`f7c9f23`](https://github.com/daneisburgh/invaas/commit/f7c9f232e669480f0822fabbe3062201d4fd81e3))
 
