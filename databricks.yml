@@ -9,7 +9,7 @@ variables:
   email:
     default: daneisburgh@gmail.com
   schedule_pause_status:
-    default: "UNPAUSED"
+    default: "PAUSED"
   root_path:
     default: "/Shared/.bundle/prod/invaas"
 common_settings: &common_settings
@@ -45,7 +45,8 @@ resources:
       schedule:
         quartz_cron_expression: "0 0 0 * * ?"
         timezone_id: UTC
-        pause_status: ${var.schedule_pause_status}
+        # pause_status: ${var.schedule_pause_status}
+        pause_status: "PAUSED"
       tasks:
         - task_key: coinbase
           job_cluster_key: job_cluster
