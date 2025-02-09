@@ -936,7 +936,6 @@ def order(
         elif orderType == "market" and side == "sell":
             del payload["price"]
     elif market_hours == "all_day_hours":
-
         payload["type"] = "limit"
         payload["quantity"] = int(payload["quantity"])  # round to integer instead of fractional
 
