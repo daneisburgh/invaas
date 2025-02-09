@@ -33,9 +33,9 @@ class SchwabTask(Task):
         await self.schwab_api.setup()
         await self.schwab_api.login(username=username, password=password)
         await self.schwab_api.close_api_session()
-        self.logger.info(f"Net worth: {self.__get_net_worth()}")
-        self.logger.info(f"Available cash to buy stocks: {self.__get_available_cash_to_buy_stocks()}")
-        self.logger.info(f"Available cash to buy options: {self.__get_available_cash_to_buy_options()}")
+        self.logger.info(f"Net worth: ${self.__get_net_worth():.2f}")
+        self.logger.info(f"Available cash to buy stocks: ${self.__get_available_cash_to_buy_stocks():.2f}")
+        self.logger.info(f"Available cash to buy options: ${self.__get_available_cash_to_buy_options():.2f}")
 
     def exit_with_output(self):
         self.dbutils.notebook.exit(
