@@ -1,5 +1,4 @@
-"""Contains decorator functions and functions for interacting with global data.
-"""
+"""Contains decorator functions and functions for interacting with global data."""
 
 from functools import wraps
 
