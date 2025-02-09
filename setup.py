@@ -30,6 +30,8 @@ DEV_REQUIREMENTS = [
     "ipywidgets",
     "jupyter",
     "jupyter_contrib_nbextensions",
+    "jupyter_scheduler",
+    "jupyterlab",
     "matplotlib",
     "mypy",
     "notebook",
@@ -39,6 +41,7 @@ DEV_REQUIREMENTS = [
     "pytest-cov",
     "python-semantic-release",
     "scikit-learn",
+    "seaborn[stats]",
     "setuptools",
     "wheel",
 ]
